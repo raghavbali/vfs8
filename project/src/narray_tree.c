@@ -3,15 +3,16 @@
 * Description		:	This contains implementation of n-arry functions to insert and display
 * Author		    :	Raghav Bali
 * Date			    :	Sep 20 2012
-* Version		    :	0.2
-* Updates           :   [Raghav Bali Sep 20 2012]: Updated Data Structuress as required
+* Version		    :	0.3
+* Updates           :   [Raghav Bali Sep 20 2012]: Updated funtion return types to int from void
+                        [Raghav Bali Sep 20 2012]: Updated Data Structuress as required
                         [Raghav Bali Sep 20 2012]: Updated the formatting to Indian Hill
 **************************************************************************************************************/
 
 #include "../include/main.h"
 
 /* Locates the correct position and inserts */
-void insert_pos(narry_tree_t **head,narry_tree_t **fresh)
+int insert_pos(narry_tree_t **head,narry_tree_t **fresh)
 {
     narry_tree_t *temp;
 
@@ -22,10 +23,11 @@ void insert_pos(narry_tree_t **head,narry_tree_t **fresh)
         /* possible candidate for right child */
         if(strncmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name,strlen(temp->file_desc->file_name)))
             if(temp->rightsibling)
-                insert_pos(&(temp->rightsibling),fresh);
+                return insert_pos(&(temp->rightsibling),fresh);
             else
             {
                 temp->rightsibling=*fresh;
+                return TRUE;
             }
         /* possible candidate for left child */
         else if(!strncmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name,strlen(temp->file_desc->file_name)))
@@ -34,16 +36,16 @@ void insert_pos(narry_tree_t **head,narry_tree_t **fresh)
 			{
 
 				if(temp->leftchild)
-					insert_pos(&(temp->leftchild),fresh);
+					return insert_pos(&(temp->leftchild),fresh);
 				else
 				{
 					temp->leftchild=*fresh;
+					return TRUE;
 				}
 			}
 			else
 				{
-					printf("\n Error!!! File/Directory already exists");
-					exit(0);
+					return FALSE;
 				}
 		}
     }
@@ -53,7 +55,7 @@ void insert_pos(narry_tree_t **head,narry_tree_t **fresh)
 
 
 /* Creates a node and then calls insert_pos for insertion */
-void insert_node(narry_tree_t **head,file_descriptor_t **file_desc)
+int insert_node(narry_tree_t **head,file_descriptor_t **file_desc)
 {
     narry_tree_t *temp, *fresh;
     file_descriptor_t fd1;
@@ -72,6 +74,7 @@ void insert_node(narry_tree_t **head,file_descriptor_t **file_desc)
         temp->leftchild=fresh;
         temp->rightsibling=NULL;
         *head=temp;
+        return TRUE;
     }
     else
     {
@@ -80,7 +83,7 @@ void insert_node(narry_tree_t **head,file_descriptor_t **file_desc)
         temp=temp->leftchild;
 
         /* insert at correct place */
-        insert_pos(&temp,&fresh);
+        return insert_pos(&temp,&fresh);
 
     }
 }

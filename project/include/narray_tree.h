@@ -22,14 +22,14 @@ typedef struct narry_tree_t
 * Finds the correct position of the new node
 * and inserts it.
 */
-void insert_pos(narry_tree_t **head,narry_tree_t **fresh);
+int insert_pos(narry_tree_t **head,narry_tree_t **fresh);
 
 
 /*
 * Initializes the tree or calls inset_pos to
 * insert node at correct position
 */
-void insert_node(narry_tree_t **head,file_descriptor_t **file_desc);
+int insert_node(narry_tree_t **head,file_descriptor_t **file_desc);
 
 /*
 * Display the tree data
