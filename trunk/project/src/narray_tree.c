@@ -2,9 +2,10 @@
 * File Name 		:	file_system.h
 * Description		:	This contains implementation of n-arry functions to insert and display
 * Author		    :	Raghav Bali
-* Date			    :	Sep 20 2012
-* Version		    :	0.3
-* Updates           :   [Raghav Bali Sep 20 2012]: Updated funtion return types to int from void
+* Date			    :	Sep 21 2012
+* Version		    :	0.4
+* Updates           :   [Raghav Bali Sep 21 2012]: Bug Fix for node insertion as sibling
+                        [Raghav Bali Sep 20 2012]: Updated funtion return types to int from void
                         [Raghav Bali Sep 20 2012]: Updated Data Structuress as required
                         [Raghav Bali Sep 20 2012]: Updated the formatting to Indian Hill
 **************************************************************************************************************/
@@ -21,14 +22,26 @@ int insert_pos(narry_tree_t **head,narry_tree_t **fresh)
     if(temp)
     {
         /* possible candidate for right child */
-        if(strncmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name,strlen(temp->file_desc->file_name)))
-            if(temp->rightsibling)
-                return insert_pos(&(temp->rightsibling),fresh);
-            else
-            {
-                temp->rightsibling=*fresh;
-                return TRUE;
-            }
+        if(strncmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name,strlen(temp->file_desc->file_name))
+           || (strlen((*fresh)->file_desc->file_name) > strlen(temp->file_desc->file_name) && (*fresh)->file_desc->file_name[strlen(temp->file_desc->file_name)]!='/'))
+           {
+                if(strcmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name))
+                    {
+
+                        if(temp->rightsibling)
+                            return insert_pos(&(temp->rightsibling),fresh);
+                        else
+                            {
+                                temp->rightsibling=*fresh;
+                                return TRUE;
+                            }
+                    }
+                else
+                    {
+                        return FALSE;
+                    }
+
+           }
         /* possible candidate for left child */
         else if(!strncmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name,strlen(temp->file_desc->file_name)))
         {
@@ -69,8 +82,8 @@ int insert_node(narry_tree_t **head,file_descriptor_t **file_desc)
 
     if(temp->leftchild==NULL)
     {
-        //strcpy(fd1.file_name,"/");
-        //temp->file_desc=&fd1;
+        strcpy(fd1.file_name,"/");
+        temp->file_desc=&fd1;
         temp->leftchild=fresh;
         temp->rightsibling=NULL;
         *head=temp;
@@ -105,7 +118,7 @@ void display(narry_tree_t  *head)
         }
         if(temp->leftchild)
         {
-            printf("\n(%s) ",temp->file_desc->file_name);
+            printf("\n(%s)",temp->file_desc->file_name);
             display(temp->leftchild);
         }
 
