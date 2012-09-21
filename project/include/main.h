@@ -1,8 +1,8 @@
 /*******************************************************************
 Name            : Raghav Bali
 Description     : Common header file for all .c files
-Date            : Sep 20 2012
-Version         : 0.1
+Date            : Sep 21 2012
+Version         : 0.2
 *******************************************************************/
 
 #include<stdio.h>
@@ -13,6 +13,7 @@ Version         : 0.1
 #include "bst.h"
 #include "linked_list.h"
 #include "hash.h"
+#include "vfs.h"
 
 /*
 * End of File
