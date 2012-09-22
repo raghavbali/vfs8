@@ -22,7 +22,7 @@
 /*	struct to define dataBlock	*/
 typedef struct data_block_t
 {
-	char buffer_size[100];
+	char buffer_size[1024];
 } data_block_t;
 
 /*	struct to define fileDescriptor		*/
