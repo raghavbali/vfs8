@@ -52,5 +52,6 @@ typedef struct main_header_t{
 
 /* global variables */
 main_header_t vfs_header;
+FILE *vfs_file; /* VFS File Name */
 
 /*	End of File	*/
