@@ -4,7 +4,8 @@
 * Author		    :	Raghav Bali
 * Date			    :	Sep 21 2012
 * Version		    :	0.4
-* Updates           :   [Raghav Bali Sep 21 2012]: Bug Fix for node insertion as sibling
+* Updates           :   [Raghav Bali Sep 25 2012]: Bug Fix-insert_node()->root node insertion streamlined
+                        [Raghav Bali Sep 21 2012]: Bug Fix for node insertion as sibling
                         [Raghav Bali Sep 20 2012]: Updated funtion return types to int from void
                         [Raghav Bali Sep 20 2012]: Updated Data Structuress as required
                         [Raghav Bali Sep 20 2012]: Updated the formatting to Indian Hill
@@ -71,7 +72,6 @@ int insert_pos(narry_tree_t **head,narry_tree_t **fresh)
 int insert_node(narry_tree_t **head,file_descriptor_t **file_desc)
 {
     narry_tree_t *temp, *fresh;
-    file_descriptor_t fd1;
 
     fresh=malloc(sizeof(narry_tree_t));
     fresh->file_desc=*file_desc;
@@ -82,11 +82,8 @@ int insert_node(narry_tree_t **head,file_descriptor_t **file_desc)
 
     if(temp->leftchild==NULL)
     {
-        strcpy(fd1.file_name,"/");
-        temp->file_desc=&fd1;
         temp->leftchild=fresh;
         temp->rightsibling=NULL;
-        *head=temp;
         return TRUE;
     }
     else
