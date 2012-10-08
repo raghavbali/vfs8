@@ -1,0 +1,2 @@
+./valgrind -v --tool=memcheck --leak-check=yes --track-origins=yes /home/raghav/Desktop/vfs8_practice/Duplicate/bin/test6
+
