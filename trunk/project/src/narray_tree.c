@@ -3,8 +3,9 @@
 * Description		:	This contains implementation of n-arry functions to insert and display
 * Author		    :	Raghav Bali
 * Date			    :	Sep 21 2012
-* Version		    :	0.9
-* Updates           :   [Raghav Bali Oct 08 2012]: Added create_node(), free_tree(),
+* Version		    :	1.1
+* Updates           :   [Raghav Bali Oct 11 2012]: Added search_node(), delete_node()
+                        [Raghav Bali Oct 08 2012]: Added create_node(), free_tree(),
                         create_file_descriptor() and minimized memory leaks
                         [Raghav Bali Oct 07 2012]: Added tokenizer function for dummy insertions
                         [Raghav Bali Oct 07 2012]: Random order insertion possible now.
@@ -30,6 +31,8 @@ int create_node(narry_tree_t **node,file_descriptor_t **file_desc)
         (*node)->file_desc=*file_desc;
         (*node)->leftchild= NULL;
         (*node)->rightsibling=NULL;
+        (*node)->leftsibling=NULL;
+        (*node)->parent=NULL;
         return TRUE;
     }
     else
@@ -83,12 +86,13 @@ int insert_pos(narry_tree_t **head,narry_tree_t **fresh)
                 else
                 {
                     temp->rightsibling=*fresh;
+                    (*fresh)->leftsibling=temp;
+                    (*fresh)->parent=temp->parent;
                     return TRUE;
                 }
             }
             else
             {
-                free((*fresh)->file_desc);
                 free(*fresh);
                 return FALSE;
             }
@@ -105,6 +109,7 @@ int insert_pos(narry_tree_t **head,narry_tree_t **fresh)
                 else
                 {
                     temp->leftchild=*fresh;
+                    (*fresh)->parent=temp;
                     return TRUE;
                 }
             }
@@ -121,7 +126,6 @@ int insert_pos(narry_tree_t **head,narry_tree_t **fresh)
                 /* Duplicate */
                 else
                 {
-                    free((*fresh)->file_desc);
                     free(*fresh);
                     return FALSE;
                 }
@@ -150,6 +154,9 @@ int insert_node(narry_tree_t **head,file_descriptor_t **file_desc)
     {
         temp->leftchild=fresh;
         temp->rightsibling=NULL;
+        fresh->parent=temp;
+        fresh->leftsibling=NULL;
+        fresh->leftchild=NULL;
         return TRUE;
     }
     else
@@ -201,7 +208,7 @@ void display(narry_tree_t  *head)
 *                   file_descriptor.loc_number = -1 signifies dummy node
 *                   file_descriptor.loc_number = -2 signifies root node
 *   Input       :   Head Node, file descriptor to be attached
-*   Output      :   NA
+*   Output      :   True(1) if successful, FALSE(0) otherwise
 */
 int tokenizer(narry_tree_t **head,file_descriptor_t **file_desc)
 {
@@ -260,7 +267,6 @@ int tokenizer(narry_tree_t **head,file_descriptor_t **file_desc)
         flag=1;
     else
     {
-        printf("\n Could not create node actual\n");
         flag=0;
     }
 
@@ -296,4 +302,262 @@ void free_tree(narry_tree_t  *head)
 
     }
 }
+
+
+/*
+*   Description :   Recursively deallocate the tree nodes when delete is performed
+*   Input       :   Head Node of the subtree
+*   Output      :   NA (marks each node's loc_number as -1 : for deletion
+*/
+void delete_tree(narry_tree_t  *head)
+{
+    narry_tree_t *temp;
+
+    temp=head;
+    if(temp)
+    {
+
+        if(temp->rightsibling)
+        {
+            delete_tree(temp->rightsibling);
+        }
+        if(temp->leftchild)
+        {
+            delete_tree(temp->leftchild);
+        }
+        /* mark for deletion */
+        temp->file_desc->loc_number=-1;
+        free(temp);
+
+    }
+}
+
+
+/*
+*   Description :   Delete the specified tree node
+*   Input       :   Head node, File Descriptor to be removed
+*                   Removes the complete subtree rooted at specified node
+*                   Including the node itself.
+*   Output      :   NA
+*/
+int delete_node(narry_tree_t  **head,file_descriptor_t **file_desc)
+{
+    narry_tree_t *temp;
+
+    temp=*head;
+
+    if(temp)
+    {
+        /* possible candidate for right child */
+        if(strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name))
+                || (strlen((*file_desc)->file_name) > strlen(temp->file_desc->file_name) && (*file_desc)->file_name[strlen(temp->file_desc->file_name)]!='/'))
+        {
+            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            {
+                if(temp->rightsibling)
+                {
+                    return delete_node(&(temp->rightsibling),file_desc);
+                }
+                else
+                {
+                    return FALSE; //node to be deleted does not exist.
+                }
+            }
+            else
+            {
+                /* Check: this case might never arise!!! */
+                temp->parent->leftchild=temp->leftsibling;
+                temp->leftsibling->rightsibling=temp->rightsibling;
+                delete_tree(temp->leftchild);
+                /* detach the node */
+                temp->leftchild=NULL;
+                temp->leftsibling=NULL;
+                temp->parent=NULL;
+                temp->rightsibling=NULL;
+                delete_tree(temp);
+                return TRUE;
+            }
+
+        }
+        /* possible candidate for left child */
+        else if(!strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name)))
+        {
+            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            {
+                if(temp->leftchild)
+                {
+                    return delete_node(&(temp->leftchild),file_desc);
+                }
+                else
+                {
+                    return FALSE;// node to be delted does not exist.
+                }
+            }
+            else
+            {
+                /* if the node to be deleted is immidiate left child of its parent */
+                if(temp->parent->leftchild!=NULL && temp!=NULL && !strcmp(temp->parent->leftchild->file_desc->file_name,temp->file_desc->file_name))
+                {
+                    if(temp->rightsibling)
+                    {
+                        temp->parent->leftchild=temp->rightsibling;
+                        temp->rightsibling->leftsibling=NULL;
+                    }
+                    else
+                        temp->parent->leftchild=NULL;
+                }
+
+                if(temp->leftsibling!= NULL)
+                    if(temp->rightsibling==NULL)
+                        temp->leftsibling->rightsibling=NULL;
+                    else
+                        {
+                            temp->leftsibling->rightsibling=temp->rightsibling;
+                            temp->rightsibling->leftsibling=temp->leftsibling;
+                        }
+
+                /* delete the left sub tree of the node */
+                delete_tree(temp->leftchild);
+
+                /* detach the node */
+                temp->leftchild=NULL;
+                temp->leftsibling=NULL;
+                temp->parent=NULL;
+                temp->rightsibling=NULL;
+
+                /* delete the node itself */
+                delete_tree(temp);
+                return TRUE;
+            }
+        }
+    }
+}
+
+
+
+/*
+*   Description :   Search the tree
+*   Input       :   Head node, filepath
+*   Output      :   File descriptor's loc_number, else -1(dummy)
+*/
+int search_node(narry_tree_t  **head,file_descriptor_t **file_desc)
+{
+    narry_tree_t *temp;
+
+    temp=*head;
+    if(temp)
+    {
+        /* possible candidate for right child */
+        if(strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name))
+                || (strlen((*file_desc)->file_name) > strlen(temp->file_desc->file_name) && (*file_desc)->file_name[strlen(temp->file_desc->file_name)]!='/'))
+        {
+            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            {
+                if(temp->rightsibling)
+                {
+                    return search_node(&(temp->rightsibling),file_desc);
+                }
+                else
+                {
+                    return -1; //node to be ssearched does not exist.
+                }
+            }
+            else
+            {
+                /* Check: this case might never arise!!! */
+                file_desc=&temp->file_desc;
+                return (*file_desc)->loc_number;
+            }
+
+        }
+        /* possible candidate for left child */
+        else if(!strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name)))
+        {
+            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            {
+                if(temp->leftchild)
+                {
+                    return search_node(&(temp->leftchild),file_desc);
+                }
+                else
+                {
+                    return -1;// node to be searched does not exist.
+                }
+            }
+            else
+            {
+                file_desc=&temp->file_desc;
+                return (*file_desc)->loc_number;
+            }
+        }
+    }
+    else
+        return -1;
+}
+
+
+
+
+
+/*
+*   Description :   Search the tree
+*   Input       :   Head node, filepath
+*   Output      :   File descriptor's loc_number, else -1(dummy)
+*/
+int search_nodes(narry_tree_t  *temp,file_descriptor_t **file_desc)
+{
+    //narry_tree_t *temp;
+
+    //temp=*head;
+    if(temp)
+    {
+        /* possible candidate for right child */
+        if(strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name))
+                || (strlen((*file_desc)->file_name) > strlen(temp->file_desc->file_name) && (*file_desc)->file_name[strlen(temp->file_desc->file_name)]!='/'))
+        {
+            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            {
+                if(temp->rightsibling)
+                {
+                    return search_node(&(temp->rightsibling),file_desc);
+                }
+                else
+                {
+                    return -1; //node to be ssearched does not exist.
+                }
+            }
+            else
+            {
+                /* Check: this case might never arise!!! */
+                file_desc=&temp->file_desc;
+                return (*file_desc)->loc_number;
+            }
+
+        }
+        /* possible candidate for left child */
+        else if(!strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name)))
+        {
+            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            {
+                if(temp->leftchild)
+                {
+                    return search_node(&(temp->leftchild),file_desc);
+                }
+                else
+                {
+                    return -1;// node to be searched does not exist.
+                }
+            }
+            else
+            {
+                file_desc=&temp->file_desc;
+                return (*file_desc)->loc_number;
+            }
+        }
+    }
+    else
+        return -1;
+}
+
+
 
