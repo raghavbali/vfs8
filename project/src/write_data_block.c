@@ -14,7 +14,7 @@ int write_block(data_block_t data_block,int offset) {
 		return FALSE;
 	}
 	
-	fseek(fptr,sizeof(struct data_block_t)*offset,SEEK_SET);
+	fseek(fptr,sizeof(char)*offset,SEEK_SET);
 	fwrite(&data_block,sizeof(struct data_block_t),1,fptr);
 	return TRUE;
 	
@@ -29,7 +29,7 @@ int write_block(data_block_t data_block,int offset) {
 		return NULL;
 	}
 	rewind(fptr);
-	fseek(fptr,sizeof(struct data_block_t)*offset,SEEK_SET);
+	fseek(fptr,sizeof(char)*offset,SEEK_SET);
 	fread(data_block_read,sizeof(struct data_block_t),1,fptr);
 	return data_block_read ;
 	
