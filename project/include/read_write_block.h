@@ -12,7 +12,7 @@ data_block:  is data that need to write into vfs
 offset: position in a vfs file where data will write.
 return succesfully writen or not.
 */
-int write_block(data_block_t data_block,int offset);
+int write_block(data_block_t *data_block,int offset);
 
 
 /*
@@ -23,6 +23,16 @@ offset: position in a vfs file where data have to read.
 return the block of data
 */
 data_block_t *read_block(int offset);
+
+
+/*
+Read a data from user file and put it into the structure and return
+the structure.
+Parameter: file name to be read.
+return structure containing data block.
+*/
+
+data_block_t *read_text_from_user_file(char filename[]);
 
 /*
  End of File
