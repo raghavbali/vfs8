@@ -21,17 +21,17 @@ int init_tree()
 
     /* create head node for tree */
     insert_file_descriptor("/",1,0);
-    fd_temp=&(vfs_header.file_descriptors[0]);
+    fd_temp=&(/*vfs_header.*/file_descriptors[0]);
 
     if(create_node(&head,&fd_temp)==TRUE)
     {
         fd_temp=NULL;
         /* creating n-arry tree */
-        for(i=1; i<MAXFILEDESCRIPTORS; i++)
+        for(i=1; i</*MAXFILEDESCRIPTORS*/max_file_descriptors; i++)
         {
-            if(vfs_header.free_list[i]!='0')
+            if(/*vfs_header.*/free_list[i]!='0')
             {
-                fd_temp=&(vfs_header.file_descriptors[i]);
+                fd_temp=&(/*vfs_header.*/file_descriptors[i]);
                 /* Actual Node insertion */
                 if (tokenizer(&head,&fd_temp)==TRUE);
                 else
@@ -63,7 +63,7 @@ int insert(char* name, int type)
         if(insert_file_descriptor(name,type,index)==TRUE)
         {
             fd_temp=NULL;
-            fd_temp=&(vfs_header.file_descriptors[index]);
+            fd_temp=&(/*vfs_header.*/file_descriptors[index]);
             /* Actual Node insertion into the tree*/
             if (insert_node(&head,&fd_temp)==TRUE)
             {
@@ -99,48 +99,54 @@ int insert_tokenized_file_descriptor(char* name, int type)
     char *result = NULL;
     char temp1[50];
 
-    //fd_temp=*file_desc;
-
-    /* Tokenizer and dummy node insertion */
-    strcpy(str,name);
-    result = strtok( str, delims );
-    strcpy(temp1,result);
-    /* If File/Directory is not at root level */
-    if(strcmp(name,temp1))
+    /* cannot create another root directory */
+    if(strcmp(name,"/"))
     {
 
-        //create_file_descriptor(&fd_dummy,temp1,-1) ;
-        if (insert(temp1,type)==TRUE)
-            flag=1;
-        else
+        /* Tokenizer and dummy node insertion */
+        strcpy(str,name);
+        result = strtok( str, delims );
+        strcpy(temp1,result);
+        /* If File/Directory is not at root level */
+        if(strcmp(name,temp1))
         {
-            //free(fd_dummy);
-            flag=0;
-        }
-        /* Insert dummy nodes for all levels above the required file */
-        while( result != NULL && strcmp(name,temp1) )
-        {
-            result = strtok( NULL, delims );
-            if(result)
-            {
-                strcat(temp1,"/");
-                strcat(temp1,result);
-            }
+
             //create_file_descriptor(&fd_dummy,temp1,-1) ;
-            /* Do not insert if reached the required level */
-            if ( strcmp(name,temp1) && insert(temp1,type)==TRUE)
+            if (insert(temp1,type)==TRUE)
                 flag=1;
             else
             {
                 //free(fd_dummy);
                 flag=0;
             }
+            /* Insert dummy nodes for all levels above the required file */
+            while( result != NULL && strcmp(name,temp1) )
+            {
+                result = strtok( NULL, delims );
+                if(result)
+                {
+                    strcat(temp1,"/");
+                    strcat(temp1,result);
+                }
+                //create_file_descriptor(&fd_dummy,temp1,-1) ;
+                /* Do not insert if reached the required level */
+                if ( strcmp(name,temp1) && insert(temp1,type)==TRUE)
+                    flag=1;
+                else
+                {
+                    //free(fd_dummy);
+                    flag=0;
+                }
 
+            }
         }
+        /* Insert the actual node */
+        if(strlen(temp1)>0 && insert(temp1, type))flag=1;
+        /* return statements */
     }
-    /* Insert the actual node */
-    if(strlen(temp1)>0 && insert(temp1, type))flag=1;
-    /* return statements */
+    else
+        flag=FALSE;
+
     if(flag!=1)
         return FALSE;
     else return TRUE;
@@ -154,12 +160,14 @@ int insert_tokenized_file_descriptor(char* name, int type)
 */
 int insert_file_descriptor(char* name, int type,int index)
 {
-    if(index<MAXFILEDESCRIPTORS && strlen(name)>0)
+    if(index</*MAXFILEDESCRIPTORS*/max_file_descriptors && strlen(name)>0)
     {
-        vfs_header.free_list[index]='1';
-        strcpy(vfs_header.file_descriptors[index].file_name,name);
-        vfs_header.file_descriptors[index].loc_number=index;
-        vfs_header.file_descriptors[index].file_type=type;
+        /*vfs_header.*/free_list[index]='1';
+        strcpy(/*vfs_header.*/file_descriptors[index].file_name,name);
+        /*vfs_header.*/
+        file_descriptors[index].loc_number=index;
+        /*vfs_header.*/
+        file_descriptors[index].file_type=type;
         vfs_header.used_file_descriptors++;
         return TRUE;
     }
@@ -194,12 +202,12 @@ int search_free_list(char *name, int type)
         create_file_descriptor(&fd_temp,name,-1);
         if ((search_node(&head->leftchild,&fd_temp))==-1)
         {
-            for(i=1; i<MAXFILEDESCRIPTORS; i++)
+            for(i=1; i</*MAXFILEDESCRIPTORS*/max_file_descriptors; i++)
             {
                 free(fd_temp);
                 fd_temp=NULL;
                 /* search for an empty slot */
-                if(vfs_header.free_list[i]=='0')
+                if(/*vfs_header.*/free_list[i]=='0')
                 {
                     flag=i;
                     break;
@@ -244,18 +252,19 @@ void update_free_list()
 
     if(flag)
     {
-            for(i=1; i<MAXFILEDESCRIPTORS; i++)
-            {
+        for(i=1; i</*MAXFILEDESCRIPTORS*/max_file_descriptors; i++)
+        {
 
-                /* search for an empty slot */
-                if(vfs_header.file_descriptors[i].loc_number==-1)
-                {
-                    /* add entry to file_descriptor array */
-                    vfs_header.free_list[i]='0';
-                    vfs_header.file_descriptors[i].loc_number=0;
-                    vfs_header.used_file_descriptors--;
-                }
+            /* search for an empty slot */
+            if(/*vfs_header.*/file_descriptors[i].loc_number==-1)
+            {
+                /* add entry to file_descriptor array */
+                /*vfs_header.*/free_list[i]='0';
+                /*vfs_header.*/
+                file_descriptors[i].loc_number=0;
+                vfs_header.used_file_descriptors--;
             }
+        }
 
 
     }
@@ -284,10 +293,10 @@ int del(char *name,int type)
 
             free(fd_temp);
             fd_temp=NULL;
-            fd_temp=&(vfs_header.file_descriptors[loc_number]);
+            fd_temp=&(/*vfs_header.*/file_descriptors[loc_number]);
             if(delete_node(&head->leftchild,&fd_temp))
             {
-                vfs_header.free_list[loc_number]='0';
+                /*vfs_header.*/free_list[loc_number]='0';
                 vfs_header.used_file_descriptors--;
                 update_free_list();
                 return TRUE;

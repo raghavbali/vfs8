@@ -20,6 +20,9 @@
 #define TRUE 1
 #define FALSE 0
 
+/* Number of file descriptors */
+typedef unsigned int block_size_t;
+
 /*	struct to define dataBlock	*/
 typedef struct data_block_t
 {
@@ -45,15 +48,18 @@ typedef struct free_list_t{
 /*	struct to define mainHeader	*/
 typedef struct main_header_t{
 	char label_name[30];
-	char free_list[MAXFILEDESCRIPTORS];
+	//char free_list[MAXFILEDESCRIPTORS];
 	int used_file_descriptors;
 	long int vfs_size;
-	file_descriptor_t file_descriptors[MAXFILEDESCRIPTORS];
+	//file_descriptor_t file_descriptors[MAXFILEDESCRIPTORS];
 } main_header_t;
 
 /* global variables */
 main_header_t vfs_header;
 FILE *vfs_file; /* VFS File Name */
+block_size_t max_file_descriptors; /* file_descriptor count */
+char *free_list; /* Free list array */
+file_descriptor_t *file_descriptors; /* file descriptor array */
 
 
 

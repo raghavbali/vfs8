@@ -63,7 +63,10 @@ void perform_action(int choice)
             update_free_list();
             if(unmount_vfs())
             {
+                free(free_list);
+                free(file_descriptors);
                 printf("\n VFS %s unmounted successfully\n",vfs_header.label_name);
+                exit(0);
             }
             else
             {

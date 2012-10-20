@@ -3,3 +3,6 @@
 
 ../bin/write_data_block.o: ../src/write_data_block.c ../incude/main.h
 	gcc -o ../bin/write_data_block.o  -c ../src/write_data_block.c
+
+
+
