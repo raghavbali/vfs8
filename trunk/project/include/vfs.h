@@ -13,7 +13,7 @@
     returns 0 on failure to create
     returns 1 on success
 */
-int create_vfs();
+int create_vfs(char *P1, int P2);
 
 /*
     Mount VFS
@@ -28,7 +28,7 @@ int mount_vfs(char vfs_name[]);
     returns 0 on failure
     return 1 on success
 */
-int unmount_vfs();
+int unmount_vfs(char name[]);
 
 
 /*
