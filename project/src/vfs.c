@@ -14,16 +14,19 @@
     returns 0 on failure to create
     returns 1 on success
 */
-int create_vfs()
+int create_vfs(char *P1, int P2)
 {
     /* dummy data to be written at the last block */
     char data_block='0';
     int i;
-    long int block_size=1024*1024;
+    long int block_size=1024;
+
+    strcpy(vfs_header.label_name,P1);
+    vfs_header.vfs_size=P2;
 
     /* Multiply block size to user defined size of VFS */
     block_size=(block_size*vfs_header.vfs_size)+sizeof(vfs_header);
-    max_file_descriptors=vfs_header.vfs_size*1024;
+    max_file_descriptors=vfs_header.vfs_size;//*1024;
 
     /* Create VFS */
     if((vfs_file=fopen(vfs_header.label_name,"wb+"))==NULL)
@@ -85,6 +88,7 @@ int mount_vfs(char vfs_name[])
     else
     {
         /* start from 1st byte of the file */
+        strcpy(vfs_header.label_name,vfs_name);
         rewind(vfs_file);
         /* load the meta-header */
         fread(&vfs_header,sizeof(vfs_header),1,vfs_file);
@@ -113,9 +117,9 @@ int mount_vfs(char vfs_name[])
     returns 0 on failure
     return 1 on success
 */
-int unmount_vfs()
+int unmount_vfs(char name[])
 {
-    if((vfs_file=fopen(vfs_header.label_name,"rb+"))==NULL)
+    if(!strcmp(name,vfs_header.label_name) && ((vfs_file=fopen(vfs_header.label_name,"rb+"))==NULL))
     {
         /* failure */
         return FALSE;
