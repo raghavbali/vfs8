@@ -13,7 +13,7 @@
 /**********************
  	Constants
 **********************/
-#define MAXFILEDESCRIPTORS 1000
+//#define MAXFILEDESCRIPTORS 1000
 #define SIZEOFFILENAME 30
 #define LOCATIONPATHLENGTH 100
 //#define SIZEOFFILETYPE 3
@@ -75,28 +75,28 @@ int init_tree();
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int insert(char* name, int type);
+int insert(char* name, char *path, int type);
 
 /*
 *   Description :   This function inserts into fd array after tokenizing(directory at each level)
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int insert_tokenized_file_descriptor(char* name, int type);
+int insert_tokenized_file_descriptor(char* name, char *path, int type);
 
 /*
 *   Description :   Insert and update file descriptor array
 *   Input       :   name of the directory, type : 1-directory and 2-file and index
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int insert_file_descriptor(char* name, int type,int index);
+int insert_file_descriptor(char* name, char *path, int type,int index);
 
 /*
 *   Description :   search the free list
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   index of the first free block or FALSE(0)
 */
-int search_free_list(char *name, int type);
+int search_free_list(char *name,char *path, int type);
 
 
 /*
