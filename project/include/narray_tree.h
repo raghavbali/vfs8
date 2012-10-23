@@ -56,7 +56,7 @@ int create_node(narry_tree_t **node,file_descriptor_t **file_desc);
 *   Input       :   File descriptor to be created, file_name, loc number
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int create_file_descriptor(file_descriptor_t **file_desc,char * str,int loc_number);
+int create_file_descriptor(file_descriptor_t **file_desc,char * name,char *path,int loc_number);
 
 
 /*
