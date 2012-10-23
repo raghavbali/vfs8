@@ -45,11 +45,12 @@ int create_node(narry_tree_t **node,file_descriptor_t **file_desc)
 *   Input       :   File descriptor to be created, file_name, loc number
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int create_file_descriptor(file_descriptor_t **file_desc,char * str,int loc_number)
+int create_file_descriptor(file_descriptor_t **file_desc,char * name,char *path,int loc_number)
 {
     if((*file_desc)=(file_descriptor_t*)malloc(sizeof(file_descriptor_t)))
     {
-        strcpy((*file_desc)->file_name,str);
+        strcpy((*file_desc)->file_name,name);
+        strcpy((*file_desc)->loc_path,path);
         (*file_desc)->loc_number=loc_number;
         return TRUE;
     }
@@ -75,10 +76,10 @@ int insert_pos(narry_tree_t **head,narry_tree_t **fresh)
     if(temp)
     {
         /* possible candidate for right child */
-        if(strncmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name,strlen(temp->file_desc->file_name))
-                || (strlen((*fresh)->file_desc->file_name) > strlen(temp->file_desc->file_name) && (*fresh)->file_desc->file_name[strlen(temp->file_desc->file_name)]!='/'))
+        if(strncmp(temp->file_desc->loc_path,(*fresh)->file_desc->loc_path,strlen(temp->file_desc->loc_path))
+                || (strlen((*fresh)->file_desc->loc_path) > strlen(temp->file_desc->loc_path) && (*fresh)->file_desc->loc_path[strlen(temp->file_desc->loc_path)]!='/'))
         {
-            if(strcmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name))
+            if(strcmp(temp->file_desc->loc_path,(*fresh)->file_desc->loc_path))
             {
 
                 if(temp->rightsibling)
@@ -99,9 +100,9 @@ int insert_pos(narry_tree_t **head,narry_tree_t **fresh)
 
         }
         /* possible candidate for left child */
-        else if(!strncmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name,strlen(temp->file_desc->file_name)))
+        else if(!strncmp(temp->file_desc->loc_path,(*fresh)->file_desc->loc_path,strlen(temp->file_desc->loc_path)))
         {
-            if(strcmp(temp->file_desc->file_name,(*fresh)->file_desc->file_name))
+            if(strcmp(temp->file_desc->loc_path,(*fresh)->file_desc->loc_path))
             {
 
                 if(temp->leftchild)
@@ -185,7 +186,7 @@ void display(narry_tree_t  *head)
 
     if(temp)
     {
-        printf("%s[%d]",temp->file_desc->file_name,temp->file_desc->loc_number);
+        printf("%s[%d]",temp->file_desc->loc_path,temp->file_desc->loc_number);
         if(temp->rightsibling)
         {
             printf("->\t");
@@ -193,7 +194,7 @@ void display(narry_tree_t  *head)
         }
         if(temp->leftchild)
         {
-            printf("\n(%s)",temp->file_desc->file_name);
+            printf("\n(%s)",temp->file_desc->loc_path);
             display(temp->leftchild);
         }
 
@@ -216,23 +217,23 @@ int tokenizer(narry_tree_t **head,file_descriptor_t **file_desc)
     file_descriptor_t *fd_dummy;
     file_descriptor_t *fd_temp;
     int flag=0; //flag=1 refers to node insertion
-    char str[30] ;
+    char str[100] ;
     char delims[] = "/";
     char *result = NULL;
-    char temp1[50];
+    char temp1[100];
 
     fd_temp=*file_desc;
 
     /* Tokenizer and dummy node insertion */
-    strcpy(str,fd_temp->file_name);
+    strcpy(str,fd_temp->loc_path);
     result = strtok( str, delims );
     strcpy(temp1,result);
-
+    printf("\ninside tokenizer for loc_path=%s temp1=%s and index=%d\n",fd_temp->loc_path,temp1,fd_temp->loc_number);
     /* If File/Directory is not at root level */
-    if(strcmp(fd_temp->file_name,temp1))
+    if(strcmp(fd_temp->loc_path,temp1))
     {
 
-        create_file_descriptor(&fd_dummy,temp1,-1) ;
+        create_file_descriptor(&fd_dummy,result,temp1,-1) ;
 
         if (insert_node(head,&fd_dummy)==TRUE)
             flag=1;
@@ -242,7 +243,7 @@ int tokenizer(narry_tree_t **head,file_descriptor_t **file_desc)
             flag=0;
         }
         /* Insert dummy nodes for all levels above the required file */
-        while( result != NULL && strcmp(fd_temp->file_name,temp1) )
+        while( result != NULL && strcmp(fd_temp->loc_path,temp1) )
         {
             result = strtok( NULL, delims );
             if(result)
@@ -250,9 +251,9 @@ int tokenizer(narry_tree_t **head,file_descriptor_t **file_desc)
                 strcat(temp1,"/");
                 strcat(temp1,result);
             }
-            create_file_descriptor(&fd_dummy,temp1,-1) ;
+            create_file_descriptor(&fd_dummy,result,temp1,-1) ;
             /* Do not insert if reached the required level */
-            if ( strcmp(fd_temp->file_name,temp1) && insert_node(head,&fd_dummy)==TRUE)
+            if ( strcmp(fd_temp->loc_path,temp1) && insert_node(head,&fd_dummy)==TRUE)
                 flag=1;
             else
             {
@@ -349,10 +350,10 @@ int delete_node(narry_tree_t  **head,file_descriptor_t **file_desc)
     if(temp)
     {
         /* possible candidate for right child */
-        if(strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name))
-                || (strlen((*file_desc)->file_name) > strlen(temp->file_desc->file_name) && (*file_desc)->file_name[strlen(temp->file_desc->file_name)]!='/'))
+        if(strncmp(temp->file_desc->loc_path,(*file_desc)->loc_path,strlen(temp->file_desc->loc_path))
+                || (strlen((*file_desc)->loc_path) > strlen(temp->file_desc->loc_path) && (*file_desc)->loc_path[strlen(temp->file_desc->loc_path)]!='/'))
         {
-            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            if(strcmp(temp->file_desc->loc_path,(*file_desc)->loc_path))
             {
                 if(temp->rightsibling)
                 {
@@ -380,9 +381,9 @@ int delete_node(narry_tree_t  **head,file_descriptor_t **file_desc)
 
         }
         /* possible candidate for left child */
-        else if(!strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name)))
+        else if(!strncmp(temp->file_desc->loc_path,(*file_desc)->loc_path,strlen(temp->file_desc->loc_path)))
         {
-            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            if(strcmp(temp->file_desc->loc_path,(*file_desc)->loc_path))
             {
                 if(temp->leftchild)
                 {
@@ -396,7 +397,7 @@ int delete_node(narry_tree_t  **head,file_descriptor_t **file_desc)
             else
             {
                 /* if the node to be deleted is immidiate left child of its parent */
-                if(temp->parent->leftchild!=NULL && temp!=NULL && !strcmp(temp->parent->leftchild->file_desc->file_name,temp->file_desc->file_name))
+                if(temp->parent->leftchild!=NULL && temp!=NULL && !strcmp(temp->parent->leftchild->file_desc->loc_path,temp->file_desc->loc_path))
                 {
                     if(temp->rightsibling)
                     {
@@ -448,10 +449,10 @@ int search_node(narry_tree_t  **head,file_descriptor_t **file_desc)
     if(temp)
     {
         /* possible candidate for right child */
-        if(strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name))
-                || (strlen((*file_desc)->file_name) > strlen(temp->file_desc->file_name) && (*file_desc)->file_name[strlen(temp->file_desc->file_name)]!='/'))
+        if(strncmp(temp->file_desc->loc_path,(*file_desc)->loc_path,strlen(temp->file_desc->loc_path))
+                || (strlen((*file_desc)->loc_path) > strlen(temp->file_desc->loc_path) && (*file_desc)->loc_path[strlen(temp->file_desc->loc_path)]!='/'))
         {
-            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            if(strcmp(temp->file_desc->loc_path,(*file_desc)->loc_path))
             {
                 if(temp->rightsibling)
                 {
@@ -471,9 +472,9 @@ int search_node(narry_tree_t  **head,file_descriptor_t **file_desc)
 
         }
         /* possible candidate for left child */
-        else if(!strncmp(temp->file_desc->file_name,(*file_desc)->file_name,strlen(temp->file_desc->file_name)))
+        else if(!strncmp(temp->file_desc->loc_path,(*file_desc)->loc_path,strlen(temp->file_desc->loc_path)))
         {
-            if(strcmp(temp->file_desc->file_name,(*file_desc)->file_name))
+            if(strcmp(temp->file_desc->loc_path,(*file_desc)->loc_path))
             {
                 if(temp->leftchild)
                 {

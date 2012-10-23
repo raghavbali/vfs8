@@ -20,7 +20,7 @@ int init_tree()
     int i;
 
     /* create head node for tree */
-    insert_file_descriptor("/",1,0);
+    insert_file_descriptor("/","/",1,0);
     fd_temp=&(/*vfs_header.*/file_descriptors[0]);
 
     if(create_node(&head,&fd_temp)==TRUE)
@@ -51,22 +51,24 @@ int init_tree()
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int insert(char* name, int type)
+int insert(char* name, char *path, int type)
 {
     int index=0;
     int flag=0;
     file_descriptor_t *fd_temp;
-
+   // printf("\nInsert : with name=%s and path=%s\n",name,path);
     /* search the free list and return the index of the first free block */
-    if ((index=search_free_list(name,type)))
+    if ((index=search_free_list(name,path,type)))
     {
-        if(insert_file_descriptor(name,type,index)==TRUE)
+        //printf("Found a free slot at position %d\n",index);
+        if(insert_file_descriptor(name,path,type,index)==TRUE)
         {
             fd_temp=NULL;
             fd_temp=&(/*vfs_header.*/file_descriptors[index]);
             /* Actual Node insertion into the tree*/
             if (insert_node(&head,&fd_temp)==TRUE)
             {
+               // printf("Node inserted for %s at %p\n",fd_temp->loc_path,fd_temp);
                 flag=TRUE;
             }
             /* node could not be inserted */
@@ -90,29 +92,36 @@ int insert(char* name, int type)
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int insert_tokenized_file_descriptor(char* name, int type)
+int insert_tokenized_file_descriptor(char* name, char *path, int type)
 {
     file_descriptor_t *fd_temp;
     int flag=0; //flag=1 refers to node insertion
-    char str[30] ;
+    char str[100] ;
     char delims[] = "/";
     char *result = NULL;
-    char temp1[50];
+    char temp1[100];
 
+    /* to counter the addtional '/' in the beginning of the path */
+    if(strlen(path)!=1) path++;
+    // if(strcmp(path,"/"))
+    strcat(path,"/");
+    //  if(strcmp(path,"/"))
+    strcat(path,name);
+    //   else
+    //     strcpy(path,name);
     /* cannot create another root directory */
-    if(strcmp(name,"/"))
+    if(strcmp(path,"/"))
     {
 
         /* Tokenizer and dummy node insertion */
-        strcpy(str,name);
+        strcpy(str,path);
         result = strtok( str, delims );
         strcpy(temp1,result);
         /* If File/Directory is not at root level */
-        if(strcmp(name,temp1))
+        if(strcmp(path,temp1))
         {
-
             //create_file_descriptor(&fd_dummy,temp1,-1) ;
-            if (insert(temp1,type)==TRUE)
+            if (insert(result,temp1,type)==TRUE)
                 flag=1;
             else
             {
@@ -120,9 +129,10 @@ int insert_tokenized_file_descriptor(char* name, int type)
                 flag=0;
             }
             /* Insert dummy nodes for all levels above the required file */
-            while( result != NULL && strcmp(name,temp1) )
+            while( result != NULL && strcmp(path,temp1) )
             {
                 result = strtok( NULL, delims );
+
                 if(result)
                 {
                     strcat(temp1,"/");
@@ -130,7 +140,8 @@ int insert_tokenized_file_descriptor(char* name, int type)
                 }
                 //create_file_descriptor(&fd_dummy,temp1,-1) ;
                 /* Do not insert if reached the required level */
-                if ( strcmp(name,temp1) && insert(temp1,type)==TRUE)
+                //printf("\nInside while result=%s temp1=%s\n",result,temp1);
+                if ( strcmp(path,temp1) && insert(result,temp1,type)==TRUE)
                     flag=1;
                 else
                 {
@@ -141,7 +152,8 @@ int insert_tokenized_file_descriptor(char* name, int type)
             }
         }
         /* Insert the actual node */
-        if(strlen(temp1)>0 && insert(temp1, type))flag=1;
+        //printf("\n\n\nInserting actual node name=%s path=%s",name,path);
+        if(strlen(temp1)>0 && insert(name, path, type))flag=1;
         /* return statements */
     }
     else
@@ -158,12 +170,13 @@ int insert_tokenized_file_descriptor(char* name, int type)
 *   Input       :   name of the directory, type : 1-directory and 2-file and index
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int insert_file_descriptor(char* name, int type,int index)
+int insert_file_descriptor(char* name, char *path,int type,int index)
 {
     if(index</*MAXFILEDESCRIPTORS*/max_file_descriptors && strlen(name)>0)
     {
         /*vfs_header.*/free_list[index]='1';
         strcpy(/*vfs_header.*/file_descriptors[index].file_name,name);
+        strcpy(file_descriptors[index].loc_path,path);
         /*vfs_header.*/
         file_descriptors[index].loc_number=index;
         /*vfs_header.*/
@@ -181,7 +194,7 @@ int insert_file_descriptor(char* name, int type,int index)
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   index of the first free block or FALSE(0)
 */
-int search_free_list(char *name, int type)
+int search_free_list(char *name,char *path, int type)
 {
     int i=0;
     int flag=FALSE;
@@ -199,7 +212,7 @@ int search_free_list(char *name, int type)
     if(flag)
     {
         flag=FALSE;
-        create_file_descriptor(&fd_temp,name,-1);
+        create_file_descriptor(&fd_temp,name,path,-1);
         if ((search_node(&head->leftchild,&fd_temp))==-1)
         {
             for(i=1; i</*MAXFILEDESCRIPTORS*/max_file_descriptors; i++)
@@ -282,11 +295,13 @@ int del(char *name,int type)
 {
     int loc_number=0;
     file_descriptor_t *fd_temp;
+    name++;
+    printf("\n%s\n",name);
 
     if(strcmp(name,"/"))
     {
 
-        create_file_descriptor(&fd_temp,name,-1);
+        create_file_descriptor(&fd_temp,name,name,-1);
 
         if ((loc_number=search_node(&head->leftchild,&fd_temp))!=-1)
         {
@@ -335,5 +350,21 @@ void list_directory()//char *name)
     //  }
 }
 
+
+void fd_array_dump(char condition)
+{
+    int i;
+
+    printf("\n\n For condition : %c :\n",condition);
+    printf("\n\n Index\t\tloc_path\t\tfile_name\t\tloc_number");
+    for(i=0; i<max_file_descriptors; i++)
+    {
+        /* search for an empty slot */
+        if(free_list[i]==condition)
+        {
+            printf("\n\n %d\t\t%-30s\t\t%-30s\t\t%d",i,file_descriptors[i].loc_path,file_descriptors[i].file_name,file_descriptors[i].loc_number);
+        }
+    }
+}
 
 
