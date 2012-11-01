@@ -59,14 +59,6 @@ void perform_action(int choice)
     char path[100];
     char src[21];//="/raghav/bali/etc/xyz";
     char dest[21];//="/bin";
-    char dest_dir_path[100];
-    char file_name[100];
-    char ubuntu_file_name[100];
-
-    strcpy(dest_dir_path,"/raghav");
-    strcpy(file_name,"abc.text");
-    strcpy(ubuntu_file_name,"../test/MirrorFile.txt");
-
     strcpy(src,"/xyz");
     strcpy(dest,"/raghav");
     int option=0;
@@ -132,7 +124,7 @@ void perform_action(int choice)
 
         case 6:
             /* logic for taking data either from file or creating file in console */
-            if(create_file(dest_dir_path,file_name,ubuntu_file_name))
+            if(write_block(test_data_block,1024))
                 printf("Data block has been writen successfully.\n");
             else
             {
