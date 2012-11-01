@@ -1,0 +1,16 @@
+../bin/vfs: ../bin/narray_tree.o ../bin/vfs.o ../bin/write_data_block.o ../bin/file_system.o ../bin/integrate.o
+	gcc -g ../bin/narray_tree.o ../bin/vfs.o ../bin/write_data_block.o ../bin/file_system.o ../bin/integrate.o -o ../bin/vfs
+../bin/integrate.o: ../src/integrate.c ../include/main.h
+	gcc -I ../include/ -c ../src/integrate.c -o ../bin/integrate.o
+../bin/file_system.o: ../src/file_system.c ../include/main.h
+	gcc -I ../include/ -c ../src/file_system.c -o ../bin/file_system.o
+../bin/write_data_block.o: ../src/write_data_block.c ../include/main.h
+	gcc -I ../include/ -c ../src/write_data_block.c -o ../bin/write_data_block.o
+../bin/vfs.o: ../src/vfs.c ../include/main.h
+	gcc -o ../bin/vfs.o -I ../include/  -c ../src/vfs.c
+../bin/narray_tree.o: ../src/narray_tree.c ../include/main.h
+	gcc -o ../bin/narray_tree.o -I ../include/  -c ../src/narray_tree.c
+
+
+
+
