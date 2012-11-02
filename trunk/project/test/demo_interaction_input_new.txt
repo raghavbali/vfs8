@@ -1,0 +1,11 @@
+createvfs demo_new 500
+mountvfs demo_new
+unmountvfs demo_new
+mountvfs demo_new
+makedir /home/sub1 sub2
+listdir / 1 ../test/listdiroutput_new.txt
+unmountvfs demo_new
+mountvfs demo_new
+movedir /home/sub1/sub2 /
+listdir / 1 ../test/listdiroutput_new.txt
+unmountvfs demo_new
