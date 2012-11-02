@@ -310,13 +310,13 @@ int del(char *name,int type)
     if(strcmp(name,"/"))
     {
         create_file_descriptor(&fd_temp,name,name,-1);
-printf("\nloc=%d and name=%s\n",fd_temp->loc_number,fd_temp->loc_path);
+        // printf("\nloc=%d and name=%s\n",fd_temp->loc_number,fd_temp->loc_path);
         if ((loc_number=search_node(&head->leftchild,&fd_temp))!=-1)
         {
             free(fd_temp);
             fd_temp=NULL;
             fd_temp=&(/*vfs_header.*/file_descriptors[loc_number]);
-            printf("\nloc=%d and name=%s\n",fd_temp->loc_number,fd_temp->loc_path);
+            //printf("\nloc=%d and name=%s\n",fd_temp->loc_number,fd_temp->loc_path);
             status=delete_node(&head->leftchild,&fd_temp);
             if(status==1)
             {
@@ -344,12 +344,15 @@ printf("\nloc=%d and name=%s\n",fd_temp->loc_number,fd_temp->loc_path);
 *   Input       :   Directory Path, Flag (0-Non recirsive, 1-Recirsive), Text File path to print output to
 *   Output      :   NA
 */
-void list_directory(char *dir_path,int flag,char *text_file_path)
+int list_directory(char *dir_path,int flag,char *text_file_path)
 {
     file_descriptor_t *fd_temp;
     narry_tree_t *source_ptr;
     FILE *fptr;
 
+    /* invalid flag */
+    if(flag!=0 && flag!=1)
+        return 2;
     source_ptr=head;
     create_file_descriptor(&fd_temp,dir_path,dir_path,-1);
     /* find source */
@@ -358,8 +361,8 @@ void list_directory(char *dir_path,int flag,char *text_file_path)
         //free(fd_temp);
         if((fptr=fopen(text_file_path,"w")) == NULL)
         {
-            printf("\nError occured in file opening\n");
-            //return FALSE;
+            //printf("\nError occured in file opening\n");
+            return 3;
         }
         else
         {
@@ -368,6 +371,7 @@ void list_directory(char *dir_path,int flag,char *text_file_path)
                 fprintf(fptr,"%s\n",source_ptr->file_desc->loc_path);
                 list_dir(source_ptr->leftchild,flag,fptr,1);
                 fclose(fptr);
+                return SUCCESS;
                 //free(source_ptr);
             }
         }
@@ -375,7 +379,7 @@ void list_directory(char *dir_path,int flag,char *text_file_path)
     }
     else
     {
-        printf("\nNo such directory found\n");
+        return 1;
     }
 }
 
@@ -413,8 +417,14 @@ int move_dir(char *src, char *dest)
         /* find destination */
         if((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp_dest))!=NULL)
         {
-            strcpy(name,"/");
-            if(strcmp(source_ptr->file_desc->file_name,"/"))
+            if(dest_ptr->parent)
+                {
+                    strcpy(name,dest_ptr->file_desc->loc_path);
+                    strcat(name,"/");
+                }
+            else
+                strcpy(name,"/");
+            //if(strcmp(source_ptr->file_desc->file_name,"/"))
                 strcat(name,source_ptr->file_desc->file_name);
 
             create_file_descriptor(&fd_temp,source_ptr->file_desc->file_name,name,-1);
@@ -484,7 +494,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
     /* find source */
     if(!(index=search_free_list(file_name,fullpath,2)))
     {
-        return FALSE;
+        return 4;/* file system full */
     }
     else
     {
@@ -496,16 +506,25 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
                 metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
                 if(write_block(read_text_from_user_file ( data_file_path ),metaheader_size ,index)==TRUE)
                 {
-                    return TRUE;
+                    return SUCCESS;
                 }
                 else
-                    return FALSE;
+                {
+                    del(fullpath,2);
+                    return 1;/* unable to create new file */
+                }
             }
             else
-                return FALSE;
+            {
+                del(fullpath,2);
+                return 1;/* unable to create new file : 0th location is reserved for root */
+            }
         }
         else
-            return FALSE;
+        {
+            del(fullpath,2);
+            return 3;/* unable to create new file */
+        }
     }
 }
 
@@ -520,8 +539,16 @@ int copy_file(char *src, char *dest)
     file_descriptor_t *fd_temp;
     narry_tree_t *source_ptr,*dest_ptr;
     char fullpath[100];
+    char name[100];
     int index=0;
     unsigned int metaheader_size=0;
+
+    /* if src is missing */
+    if(!strlen(src))
+        return 3;
+    /* if destination is missing */
+    if(!strlen(dest))
+        return 4;
 
     source_ptr=head;
     //source_ptr=source_ptr->leftchild;
@@ -532,12 +559,33 @@ int copy_file(char *src, char *dest)
     if((source_ptr=(narry_tree_t *)find_node(&source_ptr,&fd_temp))!=NULL)
     {
         free(fd_temp);
+
         dest_ptr=head;
 
         create_file_descriptor(&fd_temp,dest,dest,-1);
         /* find destination */
         if((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp))!=NULL)
         {
+            /* cannot copy dir to file */
+            if(source_ptr->file_desc->file_type==1 && dest_ptr->file_desc->file_type==2 )
+            {
+                if(fd_temp)
+                    free(fd_temp);
+                return 5;/* cannot copy dir to file */
+            }
+
+            strcpy(name,"/");
+            if(strcmp(source_ptr->file_desc->file_name,"/"))
+                strcat(name,source_ptr->file_desc->file_name);
+
+            create_file_descriptor(&fd_temp,source_ptr->file_desc->file_name,name,-1);
+            if ((search_node(&dest_ptr->leftchild,&fd_temp))!=-1)
+            {
+                if(fd_temp)
+                    free(fd_temp);
+                return 7;/* destination already has same named file/dir */
+            }
+
             /* add a method to check if destination is a file. return failure if it is a file*/
             strcpy(fullpath,dest_ptr->file_desc->loc_path);
             if(strcmp(fullpath,"/"))
@@ -547,7 +595,7 @@ int copy_file(char *src, char *dest)
             /* find free index */
             if(!(index=search_free_list(source_ptr->file_desc->file_name,fullpath,2)))
             {
-                return FALSE;
+                return 6;/* vfs is full */
             }
             else
             {
@@ -558,16 +606,27 @@ int copy_file(char *src, char *dest)
                         metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
                         if(write_block(read_block ( metaheader_size ,source_ptr->file_desc->loc_number ),metaheader_size ,index)==TRUE)
                         {
-                            return TRUE;
+                            if(fd_temp)
+                                free(fd_temp);
+                            return SUCCESS;
                         }
                         else
-                            return FALSE;
+                        {
+                            del(fullpath,2);
+                            return 8;/* unable to copyfile */
+                        }
                     }
                     else
-                        return FALSE;
+                    {
+                        del(fullpath,2);
+                        return 8;/* unable to copyfile */
+                    }
                 }
                 else
-                    return FALSE;
+                {
+                    del(fullpath,2);
+                    return 8;/* unable to copyfile */
+                }
             }
 
         }
@@ -575,7 +634,7 @@ int copy_file(char *src, char *dest)
         {
             /* destination not found */
             free(fd_temp);
-            return 0;
+            return 2;
         }
 
     }
@@ -583,12 +642,12 @@ int copy_file(char *src, char *dest)
     {
         /* source not found */
         free(fd_temp);
-        return 0;
+        return 1;
     }
 
     if(fd_temp)
         free(fd_temp);
-    return 1;
+    return SUCCESS;
 }
 
 
@@ -609,6 +668,7 @@ void fd_array_dump(char condition)
         }
     }
 }
+
 
 
 
