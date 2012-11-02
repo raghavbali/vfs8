@@ -8,13 +8,31 @@ Version         : 0.2
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include<unistd.h>
+#include<errno.h>
 #include "file_system.h"
 #include "narray_tree.h"
 #include "bst.h"
 #include "linked_list.h"
 #include "hash.h"
 #include "vfs.h"
+#include "vfs_errorcodes.h"
 
+<<<<<<< .mine
+/* module codes */
+#define CREATEVFS 1
+#define MOUNTVFS 2
+#define UNMOUNTVFS 3
+#define MAKEDIR 4
+#define DELDIR 5
+#define MOVEDIR 6
+#define LISTDIR 7
+#define ADDFILE 8
+#define REMOVEFILE 11
+#define MOVEFILE 12
+#define COPYFILE 13
+
+=======
 
 
 #define VFS_01_SUCCESS "\nVFS_01_SUCCESS : %s"
@@ -28,6 +46,7 @@ Version         : 0.2
 #define VFS_05_SUCCESS "\nVFS_05_SUCCESS : %s"
 #define VFS_05_FAILURE "\nVFS_05_FAILURE : %s does not exist"
 
+>>>>>>> .r65
 /*
 * End of File
 */
