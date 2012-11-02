@@ -1,0 +1,20 @@
+createvfs demo 500
+mountvfs demo
+unmountvfs demo
+mountvfs demo
+makedir /home/sub1 sub2
+listdir /home 0 ../test/listdiroutput.txt
+unmountvfs demo
+mountvfs demo
+movedir /home/sub1/sub2 /
+addfile /sub2 Mirrors.txt ../test/MirrorFile.txt 
+listdir / 1 ../test/listdiroutput.txt
+movefile /sub2/Mirrors.txt /home
+listdir / 0 ../test/listdiroutput1.txt
+copyfile /Mirrors.txt /home/sub1
+deletedir /home/sub1 
+listdir / 1 ../test/listdiroutput2.txt
+removefile /home/sub1/Mirrors.txt
+deletedir /home/sub1
+listdir / 1 ../test/listdiroutput2.txt
+unmountvfs demo
