@@ -248,14 +248,19 @@ void listdir ( char *P1, int P2, char *P3 )
 {
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
     //printf("listdir_TO_BE_DONE\n");
-    list_directory(P1,P2,P3);
-    printf("\n");
+    //list_directory(P1,P2,P3);
+    //printf("\n");
+    if(!error_flag)
+        console_output(LISTDIR,list_directory(P1,P2,P3),P1);
+    else
+        console_output(LISTDIR,1,P1);
 }
 
 void addfile ( char *P1, char *P2, char *P3 )
 {
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
     //printf("addfile_TO_BE_DONE\n");
+    /*
     if(create_file(P1,P2,P3))
         printf("Data block has been writen successfully.\n");
     else
@@ -263,6 +268,11 @@ void addfile ( char *P1, char *P2, char *P3 )
         printf("data block that has to write contain no string.\n");
         //return ;
     }
+    */
+    if(!error_flag)
+        console_output(ADDFILE,create_file(P1,P2,P3),P1);
+    else
+        console_output(ADDFILE,1,P1);
 }
 
 void listfile ( char *P1, char *P2 )
@@ -281,31 +291,47 @@ void removefile ( char *P1 )
 {
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
     //printf("removefile_TO_BE_DONE\n");
+    /*
     if(del(P1,2))
         printf("\nFileRemoved : %s",P1);
     else
         printf("\nCould not remove file");
+        */
+    if(!error_flag)
+        console_output(REMOVEFILE,del(P1,2),P1);
+    else
+        console_output(REMOVEFILE,1,P1);
 }
 
 void movefile ( char *P1, char *P2 )
 {
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
-    move_dir(P1,P2);
+    //move_dir(P1,P2);
     //printf("movefile_TO_BE_DONE\n");
+    if(!error_flag)
+        console_output(MOVEFILE,move_dir(P1,P2),P1);
+    else
+        console_output(MOVEFILE,1,P1);
 }
 
 void copyfile ( char *P1, char *P2 )
 {
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
     //printf("copyfile_TO_BE_DONE\n");
-
-    if(copy_file(P1,P2))
-        printf("File Copied successfully.\n");
+    /*
+        if(copy_file(P1,P2))
+            printf("File Copied successfully.\n");
+        else
+        {
+            printf("File could not be copied\n");
+            //return ;
+        }
+    */
+    if(!error_flag)
+        console_output(COPYFILE,copy_file(P1,P2),P1);
     else
-    {
-        printf("File could not be copied\n");
-        //return ;
-    }
+        console_output(COPYFILE,1,P1);
+
     // data_block_t *data_block_read=read_block(sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors,5);
     // printf("\nData written :\n%s\n",data_block_read->buffer_size);
     //fd_array_dump('1');
