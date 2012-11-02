@@ -9,7 +9,7 @@
 
 
 /*
-    Create VFS in MBs
+    Create VFS in KBs
     returns 0 on failure to create
     returns 1 on success
 */
