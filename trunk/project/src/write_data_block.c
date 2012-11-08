@@ -56,7 +56,7 @@ data_block_t *read_text_from_user_file ( char filename[] )
     data_block_t *data_read;
     data_read = (data_block_t *)malloc(sizeof(data_block_t));
     (data_read->buffer_size,"");
-    char line[131];
+    char line[1024];
     strcpy ( data_read->buffer_size,"" ) ;
     if ( (fptr=fopen(filename,"r")) == NULL )
     {
@@ -66,10 +66,42 @@ data_block_t *read_text_from_user_file ( char filename[] )
     rewind(fptr);
 
     //reading the line by line text form file.
-    while ( fgets ( line, sizeof line, fptr ) != NULL )
+    //while ( fgets ( line, sizeof line, fptr ) != NULL )
     {
+        fgets ( line, sizeof line, fptr );
         strcat(data_read->buffer_size,line);
     }
     fclose(fptr);
     return data_read;
+}
+
+
+
+//list data block
+int write_block_to_userfile(data_block_t *data_block,char *text_file_path,char *mode)
+{
+    FILE *fptr;
+    if((fptr=fopen(text_file_path,mode)) == NULL)
+    {
+        //printf("Error occured in file opening\n");
+        return FALSE;
+    }
+    if(data_block!=NULL)
+    {
+        rewind(fptr);
+        if(!strcmp(mode,"w"))
+        {
+            //fwrite(data_block,sizeof(data_block_t),1,fptr);
+            fputs(data_block->buffer_size,fptr);
+        }
+        else
+        {
+            fwrite(data_block->buffer_size,strlen(data_block->buffer_size),1,fptr);
+        }
+        fclose(fptr);
+        return TRUE;
+    }
+    else
+        return FALSE;
+
 }
