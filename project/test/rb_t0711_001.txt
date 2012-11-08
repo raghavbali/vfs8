@@ -1,0 +1,17 @@
+createvfs demo 2048
+unmountvfs demo
+mountvfs demo
+mountvfs demo
+makedir /home/sub1 sub2
+listdir /home 0 listdiroutput
+makedir /home/sub1 sub2
+makedir /home/sub1 sub2
+deletedir /home
+deletedir /home/sub
+deletedir /home/sub1
+deletedir /home/sub1/sub2
+mountvfs demo
+makedir /home/sub1 sub2
+listdir /home 0 listdiroutput
+makedir /home/sub1 sub2
+createvfs demo 2048
