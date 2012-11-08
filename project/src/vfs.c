@@ -23,6 +23,13 @@ int create_vfs(char *P1, int P2)
 
     strcpy(vfs_header.label_name,P1);
 
+	/* cannot create VFS greate than 700MB */
+            if(P2>716800)
+                return 3;
+	/* size cannot be less than equal to 0 */
+            else if(P2<=0)
+                return 5;
+
     /* Check if similar named  */
     if(access( vfs_header.label_name, F_OK ) != -1 )
         return 1;
@@ -36,13 +43,8 @@ int create_vfs(char *P1, int P2)
         }
         else
         {
-            /* cannot create VFS greate than 700MB */
-            if(P2>734003200)
-                return 3;
-            /* size cannot be less than equal to 0 */
-            else if(P2<=0)
-                return 5;
-            else
+            
+            //else
             {
                 vfs_header.vfs_size=P2;
                 /* Multiply block size to user defined size of VFS */
