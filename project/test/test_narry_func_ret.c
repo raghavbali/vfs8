@@ -7,7 +7,7 @@ Date            : Sep 20 2012
 Version         : NA
 *******************************************************************/
 
-#include "main.h"
+#include "../include/main.h"
 
 int main()
 {
@@ -28,9 +28,9 @@ int main()
     fd_temp=&fd_val;
     printf("\n%p",&fd_val);
     if (insert_node(&head,&fd_temp)!=TRUE)
-        printf("\n Node not inserted");
+        printf("\n Node not inserted\n");
     else
-        printf("\n Node inserted successfully");
+        printf("\n Node inserted successfully\n");
 
     printf("\n Enter a value : ");
     gets(fd_val1.file_name);
@@ -38,12 +38,12 @@ int main()
     printf("\n%p",&fd_val1);
 
     if(insert_node(&head,&fd_temp)!=TRUE)
-        printf("\n Node not inserted");
+        printf("\n Node not inserted\n");
     else
-        printf("\n Node inserted successfully");
+        printf("\n Node inserted successfully\n");
 
   display(head);
-
+printf("\n");
     return 0;
 }
 

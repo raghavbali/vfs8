@@ -39,40 +39,41 @@ int main()
 
     /*initializing free list*/
     int i;
-    for(i=0; i<MAXFILEDESCRIPTORS; i++)
+    for(i=0; i< max_file_descriptors/*MAXFILEDESCRIPTORS*/; i++)
     {
-        vfs_header.free_list[i]='0';
+
+        /*vfs_header.*/free_list[i]='0';
     }
 
     /* manipulating data for testing */
-    vfs_header.free_list[3]='1';
-    strcpy(vfs_header.file_descriptors[3].file_name,"raghav/etc");
-    vfs_header.file_descriptors[3].loc_number=3;
+    /*vfs_header.*/free_list[3]='1';
+    strcpy(/*vfs_header.*/file_descriptors[3].file_name,"raghav/etc");
+   /* vfs_header.*/file_descriptors[3].loc_number=3;
     vfs_header.used_file_descriptors =1;
 
-    vfs_header.free_list[7]='1';
-    strcpy(vfs_header.file_descriptors[7].file_name,"raghav");
-    vfs_header.file_descriptors[7].loc_number=7;
+    /*vfs_header.*/free_list[7]='1';
+    strcpy(/*vfs_header.*/file_descriptors[7].file_name,"raghav");
+    /*vfs_header.*/file_descriptors[7].loc_number=7;
     vfs_header.used_file_descriptors++;
 
-    vfs_header.free_list[12]='1';
-    strcpy(vfs_header.file_descriptors[12].file_name,"bali");
-    vfs_header.file_descriptors[12].loc_number=12;
+    /*vfs_header.*/free_list[12]='1';
+    strcpy(/*vfs_header.*/file_descriptors[12].file_name,"bali");
+    /*vfs_header.*/file_descriptors[12].loc_number=12;
     vfs_header.used_file_descriptors++;
 
-    vfs_header.free_list[13]='1';
-    strcpy(vfs_header.file_descriptors[13].file_name,"raghav/bin/src");
-    vfs_header.file_descriptors[13].loc_number=13;
+    /*vfs_header.*/free_list[13]='1';
+    strcpy(/*vfs_header.*/file_descriptors[13].file_name,"raghav/bin/src");
+    /*vfs_header.*/file_descriptors[13].loc_number=13;
     vfs_header.used_file_descriptors++;
 
-    vfs_header.free_list[14]='1';
-    strcpy(vfs_header.file_descriptors[14].file_name,"raghav/bin");
-    vfs_header.file_descriptors[14].loc_number=14;
+    /*vfs_header.*/free_list[14]='1';
+    strcpy(/*vfs_header.*/file_descriptors[14].file_name,"raghav/bin");
+    /*vfs_header.*/file_descriptors[14].loc_number=14;
     vfs_header.used_file_descriptors++;
 
-    vfs_header.free_list[24]='1';
-    strcpy(vfs_header.file_descriptors[24].file_name,"bali/test");
-    vfs_header.file_descriptors[24].loc_number=24;
+    /*vfs_header.*/free_list[24]='1';
+    strcpy(/*vfs_header.*/file_descriptors[24].file_name,"bali/test");
+    /*vfs_header.*/file_descriptors[24].loc_number=24;
     vfs_header.used_file_descriptors++;
 
 
@@ -90,7 +91,7 @@ int main()
     /* load vfs in the memory */
     mount_vfs(vfs_header.label_name);
     printf("\n\n The file label after mounting is : %s , \n The meta header is of size %ld\n",vfs_header.label_name,sizeof(vfs_header));
-    printf("\n\n The freelist data is : %c %c\n",vfs_header.free_list[0],vfs_header.free_list[3]);
+    printf("\n\n The freelist data is : %c %c\n",/*vfs_header.*/free_list[0],/*vfs_header.*/free_list[3]);
 
     file_descriptor_t fd_head;
     narry_tree_t *head;
@@ -105,11 +106,11 @@ int main()
     {
         fd_temp=NULL;
         /* creating n-arry tree */
-        for(i=0; i<MAXFILEDESCRIPTORS; i++)
+        for(i=0; i<max_file_descriptors; i++)
         {
-            if(vfs_header.free_list[i]!='0')
+            if(/*vfs_header.*/free_list[i]!='0')
             {
-                fd_temp=&(vfs_header.file_descriptors[i]);
+                fd_temp=&(/*vfs_header.*/file_descriptors[i]);
                 /* Actual Node insertion */
                 if (tokenizer(&head,&fd_temp)==TRUE)
                     printf("\n Node inserted %s \n",fd_temp->file_name);
@@ -121,7 +122,7 @@ int main()
 
 
         printf("\nDelete a node\n");
-        fd_temp=&(vfs_header.file_descriptors[14]);
+        fd_temp=&(/*vfs_header.*/file_descriptors[14]);
         if(delete_node(&head->leftchild,&fd_temp))
             printf("\nNode is deleted\n");
         else
@@ -151,6 +152,8 @@ int main()
     {
         printf("\n VFS %s could not be unmounted",vfs_header.label_name);
     }
+
+    //free(file_descriptors);
     //dummy_file_insert();
     //dummy_file_read();
     return 0;
