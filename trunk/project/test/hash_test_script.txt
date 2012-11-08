@@ -1,0 +1,10 @@
+createvfs demo 500
+mountvfs demo
+makedir /home/sub1 sub2
+addfile /home Mirrors ../test/MirrorFile.txt
+deletedir /home/sub1/sub2
+unmountvfs demo
+mountvfs demo
+unmountvfs demo
+mountvfs demo
+searchfile s ../test/hash_out.txt
