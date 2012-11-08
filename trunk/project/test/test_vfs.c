@@ -72,28 +72,30 @@ int main()
     printf("\n\n The file label after mounting is : %s , \n The meta header is of size %ld\n",vfs_header.label_name,sizeof(vfs_header));
     printf("\n\n The freelist data is : %c %c\n",vfs_header.free_list[0],vfs_header.free_list[3]);
 
-
+    //file_descriptor_t *fd_head = malloc(sizeof(file_descriptor_t));
+file_descriptor_t fd_head;
     narry_tree_t *head;
     file_descriptor_t *fd_temp;
+    
+ 
+    strcpy(fd_head.file_name,"/");
 
     head=malloc(sizeof(narry_tree_t));
-    head->file_desc=NULL;
+    head->file_desc=&fd_head;
     head->leftchild=NULL;
     head->rightsibling=NULL;
-
 
     /* creating n-arry tree */
     for(i=0;i<MAXFILEDESCRIPTORS;i++)
     {
         if(vfs_header.free_list[i]!='0')
-            fd_temp=&vfs_header.file_descriptors[i];
-            insert_node(&head,&fd_temp);
-            /*
-            if (insert_node(&head,&fd_temp)!=TRUE)
-               printf("\n Node not inserted\n");
-            else
-               printf("\n Node inserted successfully\n");
-               */
+            {
+		fd_temp=&(vfs_header.file_descriptors[i]);	
+            
+           	 if (insert_node(&head,&fd_temp)==TRUE)
+              		 printf("\n Node inserted \n");
+	    }
+
     }
 
     display(head);
