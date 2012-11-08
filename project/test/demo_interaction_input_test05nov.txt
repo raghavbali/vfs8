@@ -1,0 +1,9 @@
+createvfs demo_nov5 500
+mountvfs demo_nov5
+makedir /home/sub1 sub2
+listdir / 1 ../test/listdiroutput_new.txt
+addfile / Mirrors.txt ../test/MirrorFile.txt
+updatefile /Mirrors.txt ../test/TestMirrors.txt
+listfile /Mirrors.txt ../test/listfile_output.txt
+exportfile /Mirrors.txt ../test/exportfile_output
+unmountvfs demo_nov5
