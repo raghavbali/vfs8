@@ -33,7 +33,11 @@ int init_tree()
             {
                 fd_temp=&(/*vfs_header.*/file_descriptors[i]);
                 /* Actual Node insertion */
-                if (tokenizer(&head,&fd_temp)==TRUE);
+                if (tokenizer(&head,&fd_temp)==TRUE)
+                {
+                   // if(file_descriptors[i].file_type!=1)
+                        insert_into_list(&file_descriptors[i]);
+                }
                 else
                     return FALSE;
             }
@@ -69,6 +73,7 @@ int insert(char* name, char *path, int type)
             if (insert_node(&head,&fd_temp)==TRUE)
             {
                 //printf("Node inserted for %s at %p\n",fd_temp->loc_path,fd_temp);
+                insert_into_list(&file_descriptors[index]);
                 flag=TRUE;
             }
             /* node could not be inserted */
@@ -322,6 +327,7 @@ int del(char *name,int type)
             {
                 /*vfs_header.*/free_list[loc_number]='0';
                 vfs_header.used_file_descriptors--;
+                deletion(file_descriptors[loc_number].file_name,file_descriptors[loc_number].loc_path);/* delete from hash */
                 update_free_list();
                 return SUCCESS;
             }
@@ -418,14 +424,14 @@ int move_dir(char *src, char *dest)
         if((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp_dest))!=NULL)
         {
             if(dest_ptr->parent)
-                {
-                    strcpy(name,dest_ptr->file_desc->loc_path);
-                    strcat(name,"/");
-                }
+            {
+                strcpy(name,dest_ptr->file_desc->loc_path);
+                strcat(name,"/");
+            }
             else
                 strcpy(name,"/");
             //if(strcmp(source_ptr->file_desc->file_name,"/"))
-                strcat(name,source_ptr->file_desc->file_name);
+            strcat(name,source_ptr->file_desc->file_name);
 
             create_file_descriptor(&fd_temp,source_ptr->file_desc->file_name,name,-1);
             /* add a method to check if destination is a file. return failure if it is a file*/
@@ -506,6 +512,8 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
                 metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
                 if(write_block(read_text_from_user_file ( data_file_path ),metaheader_size ,index)==TRUE)
                 {
+                    //if(file_descriptors[index].file_type!=1)
+                    //    insert_into_list(&file_descriptors[index]);
                     return SUCCESS;
                 }
                 else
@@ -668,6 +676,118 @@ void fd_array_dump(char condition)
         }
     }
 }
+
+
+/*
+*   Description :   Update a file in vfs from a file in the main OS with the specified file name
+*   Input       :   Destination file path, filepath (to read data from)
+*   Output      :   True for Success and False for Failure
+*/
+int update_file(char *dest_file_path,char *data_file_path)
+{
+
+    int index=0;
+    unsigned int metaheader_size=0;
+    file_descriptor_t *fd_temp;
+
+    create_file_descriptor(&fd_temp,dest_file_path,dest_file_path,-1);
+
+    if ((index=search_node(&head->leftchild,&fd_temp))!=-1)
+    {
+        if(index!=0)
+        {
+            metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
+            if(write_block(read_text_from_user_file ( data_file_path ),metaheader_size ,index)==TRUE)
+            {
+                return SUCCESS;
+            }
+            else
+            {
+                del(dest_file_path,2);
+                return 2;/* destination file not found */
+            }
+        }
+        else
+        {
+            del(dest_file_path,2);
+            return 5;/* invalid file name */
+        }
+    }
+    else
+    {
+        del(dest_file_path,2);
+        return 1;/* source file not found */
+    }
+}
+
+
+/*
+*   Description :   list a file to user specified data file
+*   Input       :   Destination file path, filepath (to read data from)
+*   Output      :   True for Success and False for Failure
+*/
+int list_file(char *file_path,char *dest_file_path,char *mode)
+{
+
+    int index=0;
+    unsigned int metaheader_size=0;
+    file_descriptor_t *fd_temp;
+    data_block_t *data_block_read;
+
+    /* Check if similar named  */
+    if(access( dest_file_path, F_OK ) != -1 )
+        return 6;
+
+
+     /* if src is missing */
+    if(!strlen(file_path))
+        return 3;
+    /* if destination is missing */
+    if(!strlen(dest_file_path))
+        return 4;
+
+
+    create_file_descriptor(&fd_temp,file_path,file_path,-1);
+
+    if ((index=search_node(&head->leftchild,&fd_temp))!=-1)
+    {
+        /* error out if trying to export dir */
+        if(file_descriptors[index].file_type==1)
+        {
+            del(file_path,2);
+            return 7;
+        }
+
+        if(index!=0)
+        {
+            metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
+            data_block_read=read_block(sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors,index);
+            if(write_block_to_userfile(data_block_read,dest_file_path ,mode)==TRUE)
+            {
+                return SUCCESS;
+            }
+            else
+            {
+                del(file_path,2);
+                return 2;/* destination file not found */
+            }
+        }
+        else
+        {
+            del(file_path,2);
+            return 5;/* invalid file name */
+        }
+    }
+    else
+    {
+        del(file_path,2);
+        return 1;/* source file not found */
+    }
+}
+
+
+
+
 
 
 
