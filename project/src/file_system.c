@@ -35,8 +35,9 @@ int init_tree()
                 /* Actual Node insertion */
                 if (tokenizer(&head,&fd_temp)==TRUE)
                 {
-                   // if(file_descriptors[i].file_type!=1)
-                        insert_into_list(&file_descriptors[i]);
+                    // if(file_descriptors[i].file_type!=1)
+                    //printf("\nfs:init tree for %s\n",file_descriptors[i].file_name);
+                    insert_into_list(&file_descriptors[i]);
                 }
                 else
                     return FALSE;
@@ -73,6 +74,7 @@ int insert(char* name, char *path, int type)
             if (insert_node(&head,&fd_temp)==TRUE)
             {
                 //printf("Node inserted for %s at %p\n",fd_temp->loc_path,fd_temp);
+                //printf("\nfs:insert for %s\n",file_descriptors[index].file_name);
                 insert_into_list(&file_descriptors[index]);
                 flag=TRUE;
             }
@@ -739,7 +741,7 @@ int list_file(char *file_path,char *dest_file_path,char *mode)
         return 6;
 
 
-     /* if src is missing */
+    /* if src is missing */
     if(!strlen(file_path))
         return 3;
     /* if destination is missing */
@@ -787,8 +789,48 @@ int list_file(char *file_path,char *dest_file_path,char *mode)
 
 
 
+/*
+*   Description :   search files to user specified data file
+*   Input       :   Destination file path, filepath (to read data from)
+*   Output      :   True for Success and False for Failure
+*/
+int search_file(char *characters,char *dest_file_path)
+{
+    struct list *result;
+    FILE *fptr;
+    int counter=0;
+    file_match_count=0;
 
+    //result=(struct list *)malloc(sizeof(struct list));
+    result=search_files(characters);
+    if(result==NULL)
+    {
+        //puts("FILEs NOT FOUND");
+        return 3;
+    }
+    else
+    {
+        if(result!=NULL)
+        {
 
+            if((fptr=fopen(dest_file_path,"r+")) == NULL)
+            {
+                //printf("Error occured in file opening\n");
+                return 1;
+            }
+            while(result!=NULL)
+            {
+                //printf("File %s in the path %s \n",res->file_desc->file_name,res->file_desc->loc_path);
+                fprintf(fptr,"%s\n",result->file_desc->loc_path);
+                result=result->next;
+                counter++;
+            }
+            file_match_count=counter;
+            fclose(fptr);
+            return SUCCESS;
+        }
+    }
+}
 
 
 
