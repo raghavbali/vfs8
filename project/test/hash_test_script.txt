@@ -7,4 +7,5 @@ unmountvfs demo
 mountvfs demo
 unmountvfs demo
 mountvfs demo
-searchfile s ../test/hash_out.txt
+searchfile M ../test/hashout.txt
+unmountvfs demo
