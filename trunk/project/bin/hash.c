@@ -3,18 +3,7 @@
 #include<string.h>
 #include<malloc.h>
 
-struct list
-{
-    /*
-    char file_name[30];
-        char path_name[50];
-        */
-    file_descriptor_t *file_desc;
-    struct list * next;
-};
-
-struct list *hash_table[51];
-
+int flag_hash= FALSE;
 /*Hash Function*/
 
 int hash(char *file_name)
@@ -26,6 +15,8 @@ int hash(char *file_name)
         hash_value=first_char%65 ;
     else if (first_char >= 'a' && first_char <= 'z')
         hash_value=(first_char%97)+26;
+    else if(first_char >= '0' && first_char <= '9')
+	hash_value=(first_char%48)+52;
     else
         hash_value =-1;     //File name Validation needs to be done
     return hash_value;
@@ -36,7 +27,7 @@ int display_hashdump()
 {
     int i=0;
     struct list *temp;
-    for(i=0; i<51; i++)
+   /* for(i=0; i<=HASH_SIZE; i++)
     {
         while(hash_table[i]!=NULL)
         {
@@ -45,14 +36,34 @@ int display_hashdump()
             {
                 printf("%s\t", temp->file_desc->file_name);
                 temp=temp->next;
-
             }
             printf("\n");
             i++;
-            if(i==51)
+            if(i==HASH_SIZE)
                 break;
         }
-    }
+    }*/
+	for(i=0; i<=HASH_SIZE; i++)
+	{	if(hash_table[i]!=NULL)
+		{
+			flag_hash=TRUE;
+			temp=hash_table[i];
+			while(temp!=NULL)
+			{
+				printf("%s",temp->file_desc->file_name);
+				if(temp->next!=NULL)
+				{
+					printf("-->");
+				}
+				temp=temp->next;
+			}
+			printf("\n");
+		}
+	}
+	if(flag_hash==FALSE)
+		{
+			printf("\nHash Table Empty...\n");
+		}
     return 1;
 }
 
@@ -61,9 +72,8 @@ int display_hashdump()
 int insert_into_list(/*int hash_value,*/ file_descriptor_t *fd/*char file[],char path[]*/)
 {
     struct list *node;
-    hash_value = hash(fd->file_name);
-    printf("%d\n", hash_value);
-
+    int hash_value = hash(fd->file_name);
+    struct list *prev,*curr;
 
     node = (struct list *)malloc(sizeof(struct list));
 //Store the file name and Fullpath in the node... and inserting in Sorted order
@@ -75,7 +85,10 @@ int insert_into_list(/*int hash_value,*/ file_descriptor_t *fd/*char file[],char
 
     if(hash_table[hash_value]== NULL)
     {
-        hash_table[hash_value]= node;
+        //hash_table[hash_value]=(struct list *)malloc(sizeof(struct list));
+        //hash_table[hash_value]->file_desc= fd;
+        //hash_table[hash_value]=NULL;
+        hash_table[hash_value]=node;
         return 1;
     }
     //insertion at end
@@ -97,7 +110,7 @@ int insert_into_list(/*int hash_value,*/ file_descriptor_t *fd/*char file[],char
     hash_table[hash_value]=node;
     return 1;
     	}*/
-
+/*
     //insertion in sorted order
     else if(strcmp((hash_table[hash_value]->file_desc->file_name),(node->file_desc->file_name)) > 0)
     {
@@ -105,10 +118,10 @@ int insert_into_list(/*int hash_value,*/ file_descriptor_t *fd/*char file[],char
         hash_table[hash_value]=node;
         return 1;
     }
+    */
 
     else
     {
-        struct list *prev,*curr;
         curr=hash_table[hash_value];
         prev =hash_table[hash_value];
 
@@ -123,14 +136,27 @@ int insert_into_list(/*int hash_value,*/ file_descriptor_t *fd/*char file[],char
         prev->next = node;
         return 1;
     }
+
+    curr=hash_table[hash_value];
+    printf("\nHash data for %d\n",hash_value);
+    int i=0;
+    while(curr!=NULL&&node != NULL)
+        {
+            printf("i=%d--%s--",i,curr->file_desc->file_name);
+            i++;
+            curr=curr->next;
+        }
+    return 1;
 }
 
 
 /*Deleting a node from the hash table based on the file name and path name*/
-int deletion(int hash_value, char *f,char *p)
+int deletion(char *f,char *p)
 {
     int flag=0;
     struct list * temp1, *temp2,*del;
+    int hash_value = hash(f);
+
     temp1 = hash_table[hash_value];
     temp2 = hash_table[hash_value];
 
@@ -277,16 +303,85 @@ struct list* search_files(char *startchars)
 }
 
 
-void init_hash()
+
+
+void free_lists(struct list *temp)
 {
+    struct list *temp1;
+    if(temp)
+    {
+        while(temp != NULL)
+        {
+            temp1= temp;
+            temp = temp->next;
+            free(temp1);
+        }
+/*
+        if(temp->next==NULL)
+        {
+            printf("\nfreeing : %s",temp->file_desc->file_name);
+            free(temp);
+            getchar();
+            return;
+        }
+        else
+            {
+                free_lists(temp->next);
+                free(temp);
+            }
+*/
+    }
+
 
 }
+
+
+void free_hash()
+{
+    int i;
+    struct list *temp,*temp1;
+    /*
+    for(i=0;i<=HASH_SIZE;i++)
+    {
+        if(hash_table[i])
+            {
+                free_lists(hash_table[i]);
+                //hash_table[i]=NULL;
+                //free(hash_table[i]);
+            }
+    }
+    */
+    for(i=0; i<=HASH_SIZE; i++)
+	{	if(hash_table[i]!=NULL)
+		{
+			temp=hash_table[i];
+			while(temp!=NULL)
+			{
+				printf("%s",temp->file_desc->file_name);
+				/*
+				if(temp->next!=NULL)
+				{
+					printf("-->");
+				}
+				*/
+				temp1=temp;
+				temp=temp->next;
+				free(temp1);
+				temp1=NULL;
+			}
+			hash_table[i]=NULL;
+			//printf("\n");
+		}
+	}
+
+}
+
 
 int main()
 {
     int i;
 
-    for(i=0; i<=51; i++)
+    for(i=0; i<=HASH_SIZE; i++)
     {
         hash_table[i] = NULL;
     }
@@ -326,7 +421,7 @@ int main()
                 break;
             }
 
-            insert_into_list(hash_value, fd_temp);
+            insert_into_list(fd_temp);
             break;
 
         case 2:
@@ -339,7 +434,7 @@ int main()
             hash_value = hash(f);
             printf("Enter the Path\n");
             scanf("%s", p);
-            deletion(hash_value, f,p);
+            deletion( f,p);
             break;
 
         case 5:
@@ -371,9 +466,11 @@ int main()
             break;
         default:
             printf("Enter Valid choice");
+            free_hash();
             break;
 
 
         }
     }
 }
+
