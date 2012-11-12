@@ -18,7 +18,6 @@ Version         : 0.2
 #include "vfs.h"
 #include "vfs_errorcodes.h"
 
-<<<<<<< .mine
 /* module codes */
 #define CREATEVFS 1
 #define MOUNTVFS 2
@@ -28,25 +27,14 @@ Version         : 0.2
 #define MOVEDIR 6
 #define LISTDIR 7
 #define ADDFILE 8
+#define LISTFILE 9
+#define UPDATEFILE 10
 #define REMOVEFILE 11
 #define MOVEFILE 12
 #define COPYFILE 13
+#define EXPORTFILE 14
+#define SEARCHFILE 15
 
-=======
-
-
-#define VFS_01_SUCCESS "\nVFS_01_SUCCESS : %s"
-#define VFS_01_FAILURE "\nVFS_01_FAILURE : File creation failed"
-#define VFS_02_SUCCESS "\nVFS_02_SUCCESS : %s"
-#define VFS_02_FAILURE "\nVFS_02_FAILURE "
-#define VFS_03_SUCCESS "\nVFS_03_SUCCESS : %s"
-#define VFS_03_FAILURE "\nVFS_03_FAILURE "
-#define VFS_04_SUCCESS "\nVFS_04_SUCCESS : %s%s"
-#define VFS_04_FAILURE "\nVFS_04_FAILURE : %s%s already exists"
-#define VFS_05_SUCCESS "\nVFS_05_SUCCESS : %s"
-#define VFS_05_FAILURE "\nVFS_05_FAILURE : %s does not exist"
-
->>>>>>> .r65
 /*
 * End of File
 */
