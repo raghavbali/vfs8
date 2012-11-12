@@ -63,6 +63,7 @@ block_size_t max_file_descriptors; /* file_descriptor count */
 char *free_list; /* Free list array */
 file_descriptor_t *file_descriptors; /* file descriptor array */
 int error_flag; /* 1-error state and 0-not in error state */
+int mount_flag; /* 1-vfs mounted and 0- not mounted */
 
 
 
@@ -99,7 +100,6 @@ int insert_file_descriptor(char* name, char *path, int type,int index);
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   index of the first free block or FALSE(0)
 */
-<<<<<<< .mine
 int search_free_list(char *name,char *path, int type);
 
 
@@ -109,9 +109,6 @@ int search_free_list(char *name,char *path, int type);
 *   Output      :   NA
 */
 void update_free_list();
-=======
-int search_free_list(char *name,char *path, int type);
->>>>>>> .r65
 
 
 /*
