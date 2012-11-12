@@ -50,8 +50,13 @@ void console_output(int module, int index,char *output)
             printf("mountvfs_FAILURE: %s\n",ERR_VFS_MOUNT_03);
             error_flag=1;
             break;
+        case 4  :
+            printf("mountvfs_FAILURE: %s\n",ERR_VFS_MOUNT_04);
+            error_flag=1;
+            break;
         default :
             error_flag=0; /* not in error */
+            mount_flag=1; /* vfs mounted */
             printf("mountvfs_SUCCESS\n");
             break;
         }
@@ -71,8 +76,13 @@ void console_output(int module, int index,char *output)
             printf("unmountvfs_FAILURE: %s\n",ERR_VFS_UNMOUNT_03);
             error_flag=1;
             break;
+        case 4  :
+            printf("unmountvfs_FAILURE: %s\n",ERR_VFS_UNMOUNT_04);
+            error_flag=1;
+            break;
         default :
             error_flag=0; /* not in error */
+            mount_flag=0; /* vfs unmounted */
             printf("unmountvfs_SUCCESS\n");
             break;
         }
@@ -249,7 +259,116 @@ void console_output(int module, int index,char *output)
             break;
         default :
             error_flag=0; /* not in error */
-            printf("movefile_SUCCESS\n");
+            printf("copyfile_SUCCESS\n");
+            break;
+        }
+
+
+    /* UPdateFile */
+    if(UPDATEFILE==module)
+        switch(index)
+        {
+        case 1  :
+            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_01);
+            break;
+        case 2  :
+            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_02);
+            break;
+        case 3  :
+            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_03);
+            break;
+        case 4  :
+            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_04);
+            break;
+        case 5  :
+            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_05);
+            break;
+        default :
+            error_flag=0; /* not in error */
+            printf("updatefile_SUCCESS\n");
+            break;
+        }
+
+
+
+    /* LIstFile */
+    if(LISTFILE==module)
+        switch(index)
+        {
+        case 1  :
+            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_01);
+            break;
+        case 2  :
+            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_02);
+            break;
+        case 3  :
+            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_03);
+            break;
+        case 4  :
+            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_04);
+            break;
+        case 5  :
+            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_05);
+            break;
+        case 6  :
+            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_06);
+            break;
+        case 7  :
+            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_07);
+            break;
+        default :
+            error_flag=0; /* not in error */
+            printf("listfile_SUCCESS\n");
+            break;
+        }
+
+
+    /* LIstFile */
+    if(EXPORTFILE==module)
+        switch(index)
+        {
+        case 1  :
+            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_01);
+            break;
+        case 2  :
+            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_02);
+            break;
+        case 3  :
+            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_03);
+            break;
+        case 4  :
+            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_04);
+            break;
+        case 6  :
+            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_06);
+            break;
+        case 7  :
+            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_07);
+            break;
+        default :
+            error_flag=0; /* not in error */
+            printf("exportfile_SUCCESS\n");
+            break;
+        }
+
+
+        /* AddFile */
+    if(SEARCHFILE==module)
+        switch(index)
+        {
+        case 1  :
+            printf("searchfile_FAILURE: %s\n",ERR_VFS_SEARCHFILE_01);
+            break;
+        case 2  :
+            printf("searchfile_FAILURE: %s\n",ERR_VFS_SEARCHFILE_02);
+            break;
+        case 3  :
+            printf("searchfile_FAILURE: %s\n",ERR_VFS_SEARCHFILE_03);
+            break;
+        default :
+            error_flag=0; /* not in error */
+            printf("searchfile_SUCCESS : %d matches found\n",file_match_count);
+            file_match_count=0;/* setting back to 0; */
             break;
         }
 }
