@@ -64,7 +64,7 @@ char *free_list; /* Free list array */
 file_descriptor_t *file_descriptors; /* file descriptor array */
 int error_flag; /* 1-error state and 0-not in error state */
 int mount_flag; /* 1-vfs mounted and 0- not mounted */
-
+int Bsearch_flag;
 
 
 /*
@@ -132,7 +132,7 @@ int list_directory(char *dir_path,int flag,char *text_file_path);
 *   Input       :   Source directory path, destination directory path
 *   Output      :   True for Success and False for Failure
 */
-int move_dir(char *src, char *dest);
+int move_dir(char *src, char *dest,int type);
 
 
 /*
