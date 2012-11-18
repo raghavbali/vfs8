@@ -1,4 +1,11 @@
-#define HASH_SIZE 51
+/*******************************************************************
+Name            : Deepthi
+Description     : Search in hashtable using filename
+Date            : Nov 21 2012
+Version         : 1.0
+********************************************************************/
+
+#define HASH_SIZE 61
 
 struct list
 {
