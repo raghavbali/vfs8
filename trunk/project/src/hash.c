@@ -1,3 +1,9 @@
+/*******************************************************************
+Name            : Deepthi
+Description     : Search in hashtable using filename
+Date            : Nov 21 2012
+Version         : 1.0
+********************************************************************/
 #include "../include/main.h"
 #include<stdio.h>
 #include<string.h>
@@ -359,101 +365,4 @@ void free_hash()
 	}
 
 }
-/*
 
-int main()
-{
-    int i;
-
-    for(i=0; i<=HASH_SIZE; i++)
-    {
-        hash_table[i] = NULL;
-    }
-
-    char file[30], f[30],search_file[30],path[30],p[30],start_char[5];
-    int hash_value=0;
-    int option, choice;
-    file_descriptor_t *fd_temp;
-
-
-    while(1)
-    {
-        printf("\nMENU\n");
-        printf("1-Insert a file into hash\n");
-        printf("2-Display hash\n");
-        printf("3-Delete a hash\n");
-        printf("4-Search for file\n");
-        printf("5-Search for Files using starting characters in file_name\n");
-        printf("6-Exit\n");
-
-        printf("Enter your choice\n");
-        scanf("%d", &choice);
-
-        switch(choice)
-        {
-        case 1:
-            printf("\nEnter the file name to be inserted into the hash table\n");
-            scanf("%s", file);
-            printf("\nEnter the path of the file\n");
-            scanf("%s", path);
-            hash_value = hash(file);
-            printf("%d\n", hash_value);
-            create_file_descriptor(&fd_temp,file,path,3);
-            if(hash_value == -1)
-            {
-                printf("\nInvalid file name\n");
-                break;
-            }
-
-            insert_into_list(fd_temp);
-            break;
-
-        case 2:
-            display_hashdump();
-            break;
-
-        case 3:
-            printf("Enter the file name\n");
-            scanf("%s", f);
-            hash_value = hash(f);
-            printf("Enter the Path\n");
-            scanf("%s", p);
-            deletion( f,p);
-            break;
-
-        case 5:
-            printf("Enter the starting characters for the files to be searched in the hash table\n");
-            scanf("%s",start_char);
-            struct list *res;
-            res=(struct list *)malloc(sizeof(struct list));
-            res=search_files(start_char);
-            if(res==NULL)
-            {
-                puts("FILE NOT FOUND");
-
-            }
-            else
-            {
-                printf("The files starting with %s are found in the paths \n",start_char);
-                while(res!=NULL)
-                {
-                    printf("File %s in the path %s \n",res->file_desc->file_name,res->file_desc->loc_path);
-                    res=res->next;
-                }
-
-            }
-            break;
-
-        case 6:
-            printf("\nProgram terminating\n");
-            return 0;
-            break;
-        default:
-            printf("Enter Valid choice");
-            break;
-
-
-        }
-    }
-}
-*/
