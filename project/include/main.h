@@ -34,7 +34,7 @@ Version         : 0.2
 #define COPYFILE 13
 #define EXPORTFILE 14
 #define SEARCHFILE 15
-
+#define BSEARCH 16
 /*
 * End of File
 */
