@@ -1,0 +1,15 @@
+createvfs vfsg8_02 2048000000000
+createvfs vfs8_02 1024
+createvfs vfs8_2 1024
+mountvfs vfs8_02
+makedir /home /
+searchfile M /tmp/vfs8_02_searchfileout.txt
+copyfile /home/test.txt /home
+addfile / syscall.txt /usr/include/syscall.h
+makedir /t1/t2/t3/t4/ inputdir
+addfile /t1/t2/t3/t4/inputdir/ syscall.txt /usr/include/syscall.h
+addfile /t1/ syscall.txt /usr/include/syscall.h
+listdir /home 0 /tmp/vfs08_01_listdir.txt
+copyfile /t1/syscall.txt /home/
+listdir / 1 /tmp/vfs8_02_listdir2.txt
+unmountvfs vfs8_02

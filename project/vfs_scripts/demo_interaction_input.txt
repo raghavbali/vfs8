@@ -1,0 +1,7 @@
+createvfs demo 500
+mountvfs demo
+unmountvfs demo
+mountvfs demo
+makedir /home/sub5 sub2
+Bsearchfile /home/sub5/sub
+unmountvfs demo

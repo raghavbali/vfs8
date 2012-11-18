@@ -1,0 +1,13 @@
+/*create*/
+createvfs vfs8_0212212222222222222222 1024
+createvfs vfs8_02 1024
+createvfs vfs8_02 1024
+createvfs
+createvfs vfs8/02 1024
+createvfs vfs8_02 1025
+/*mount*/
+mountvfs vfs8_02
+/*unmount*/
+makedir /t1/t2/t3/t4/ inputdir
+listdir / 1 /tmp/vfs8_02_listdir2.txt
+unmountvfs vfs8_02
