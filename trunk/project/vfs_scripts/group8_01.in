@@ -1,0 +1,12 @@
+makedir /home/vfs/test abc
+createvfs vfsg8_01 201
+createvfs vfsg08_01 201
+unmountvfs vfsg8_01
+mountvfs vfsg8_01
+movedir /home /home/test
+makedir /home/t1/t2/t3/t4/t4/t5/t6/t7/t8/ test1
+addfile /home/ test.txt /usr/include/termio.h
+copyfile /home/test.txt /home/t1/
+listdir /home 0 /tmp/vfs08_01_listdir.txt
+mountvfs vfs8_01
+unmountvfs vfsg8_01

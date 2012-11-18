@@ -1,0 +1,16 @@
+createvfs vfs_inp_06
+createvfs vfs_inp_06 36
+mountvfs vfs_inp_06
+addfile /home file2.txt /usr/include/ar.h
+addfile / file2.txt /usr/include/ar.h
+makedir /home/dir1 dir2
+addfile /home addingfile2.txt /usr/include/alloca.h
+listfile /home/addingfile2.txt /tmp/listfile_output61.txt
+removefile /home/dir1/file3.txt 
+movefile /home/addingfile2.txt /home/dir1/dir2
+copyfile /file2.txt /home/dir1
+movefile /home/dir1/dir2/addingfile2.txt /home/dir1/file2.txt
+deletedir /home/dir1 
+listdir / 1 ../test/listdiroutput61.txt
+exportfile /home/dir1/dir2/file1.txt /tmp/exportfile_output61.txt
+unmountvfs vfs_inp_06

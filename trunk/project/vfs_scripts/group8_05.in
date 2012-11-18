@@ -1,0 +1,12 @@
+createvfs vfs_inp_05 25
+mountvfs vfs_inp_05
+unmountvfs vfs_inp
+mountvfs vfs_inp_05
+makedir /home/dir1 dir2
+addfile /home/dir1/dir2/ file1.txt /usr/include/ar.h
+makedir /home/dir1/dir2/ abc
+listdir /home 0 /tmp/listdir_output51.txt
+movedir / /home/dir1/dir2
+listdir / 1 /tmp/listdir_output52.txt
+deletedir /
+unmountvfs vfs_inp_05

@@ -1,0 +1,15 @@
+createvfs_FAILURE INVALID_SIZE
+createvfs_SUCCESS
+createvfs_SUCCESS
+mountvfs_SUCCESS
+makedir_FAILURE INVALID_CHARACTER_IN_DIRNAME
+searchfile_SUCCESS 0 matches found
+copyfile_FAILURE CANNOT_FIND_SOURCEFILE
+addfile_SUCCESS
+makedir_SUCCESS
+addfile_SUCCESS
+addfile_SUCCESS
+listdir_SUCCESS
+copyfile_SUCCESS
+listdir_SUCCESS
+unmountvfs_SUCCESS
