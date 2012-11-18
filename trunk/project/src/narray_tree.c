@@ -217,11 +217,9 @@ void list_dir(narry_tree_t  *head,int flag,FILE *fptr,int level)
     {
         i = level;
         temp1=temp;
+
         for (i=level; i>0; i--)
         {
-            int j;
-            for (j=1; j<i; j++, temp1 = temp1->parent);
-
             if (i == 1)
                 if (temp->rightsibling == NULL)
                     fprintf(fptr,"└── ");
@@ -230,7 +228,7 @@ void list_dir(narry_tree_t  *head,int flag,FILE *fptr,int level)
             else if (temp->rightsibling != NULL)
                 fprintf(fptr,"│   ");
             else
-                fprintf(fptr,"    ");
+                fprintf(fptr,"|   ");
         }
         fprintf(fptr,"%s\n",temp->file_desc->loc_path);
         if(temp->leftchild!=NULL && flag==1)
@@ -503,6 +501,7 @@ int search_node(narry_tree_t  **head,file_descriptor_t **file_desc)
     narry_tree_t *temp;
     // printf("\nSearch node with value %s %s\n",(*file_desc)->loc_path,(*file_desc)->file_name);
     temp=*head;
+//    printf("\ntemp=%s\n",temp->file_desc->loc_path);
     if(temp)
     {
         /* possible candidate for right child */

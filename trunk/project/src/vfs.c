@@ -21,14 +21,30 @@ int create_vfs(char *P1, int P2)
     int i;
     long int block_size=1024;
 
-    strcpy(vfs_header.label_name,P1);
+    /* Insufficient paramters */
+    if(strlen(P1)<1)
+        return 0;
+    if(P2==NULL)
+        return 0;
 
-	/* cannot create VFS greate than 700MB */
-            if(P2>716800)
-                return 3;
-	/* size cannot be less than equal to 0 */
-            else if(P2<=0)
-                return 5;
+
+    /* cannot create VFS greate than 700MB */
+    if(P2>1024)
+        return 4;
+    /* size cannot be less than equal to 0 */
+    else if(P2<=0)
+        return 4;
+
+    /* Invalid name */
+    if(strstr(P1,"/")!=NULL)
+        return 3;
+
+    /* Name too large */
+    if(strlen(P1)>30)
+        return 5;
+
+
+    strcpy(vfs_header.label_name,P1);
 
     /* Check if similar named  */
     if(access( vfs_header.label_name, F_OK ) != -1 )
@@ -43,7 +59,7 @@ int create_vfs(char *P1, int P2)
         }
         else
         {
-            
+
             //else
             {
                 vfs_header.vfs_size=P2;
@@ -53,7 +69,7 @@ int create_vfs(char *P1, int P2)
 
                 /* secure file size by writing data at the last byte of the file */
                 fseek(vfs_file,block_size-1, SEEK_SET);
-                fwrite(&data_block,sizeof(data_block),sizeof(data_block)*block_size,vfs_file);
+                fwrite(&data_block,sizeof(data_block),1/*sizeof(data_block)*block_size*/,vfs_file);
 
                 /* reset to beginning of file */
                 rewind(vfs_file);
@@ -97,6 +113,11 @@ int create_vfs(char *P1, int P2)
 */
 int mount_vfs(char vfs_name[])
 {
+    /* insufficient args */
+    if(strlen(vfs_name)<1)
+        return 0;
+
+    /* file not found */
     if(access( vfs_name, F_OK ) == -1 )
         return 1;
     else
@@ -142,6 +163,8 @@ int mount_vfs(char vfs_name[])
 */
 int unmount_vfs(char name[])
 {
+    if(strlen(name)<1)
+        return 0;
     /* err out if file does not exist */
     if(access( name, F_OK ) == -1 )
         return 1;
@@ -152,7 +175,7 @@ int unmount_vfs(char name[])
     if((vfs_file=fopen(name,"rb+"))==NULL)
     {
         /* failure to write to file*/
-        return 3;
+        return 2;
     }
     else
     {
