@@ -37,7 +37,7 @@ void movefile ( char *P1, char *P2 );
 void copyfile ( char *P1, char *P2 );
 void exportfile ( char *P1, char *P2 );
 void searchfile ( char *P1, char *P2 );
-
+void Bsearchfile (char *P1);
 void processcommand( char *command, char *P1, char *P2, char *P3 );
 
 int main( int argc, char *argv[] )
@@ -81,6 +81,8 @@ int main( int argc, char *argv[] )
 
         processcommand( command, par1, par2, par3 );
     }
+
+    //fd_array_dump('1');
 }
 
 void processcommand( char *command, char *P1, char *P2, char *P3 )
@@ -121,6 +123,8 @@ void processcommand( char *command, char *P1, char *P2, char *P3 )
         exportfile (P1,P2);
     else if( strcmp(command, "searchfile") == 0 )
         searchfile (P1,P2);
+    else if( strcmp(command, "Bsearchfile") == 0 )
+        Bsearchfile (P1);    
     else
         printf("Ignoring invalid command %s\n", command);
 }
@@ -139,15 +143,19 @@ void createvfs ( char *P1, int P2 )
          printf(VFS_01_FAILURE);*/
     //printf("createvfs_TO_BE_DONE\n");
     console_output(CREATEVFS,create_vfs(P1,P2),P1);
+    /*
     if(!error_flag)
     {
         init_tree();
     }
-
-    if(head)
-        free_tree(head);
-    free(free_list);
-    free(file_descriptors);
+    */
+    if(!mount_flag)
+    {
+        if(head)
+            free_tree(head);
+        free(free_list);
+        free(file_descriptors);
+    }
 
 
 }
@@ -164,32 +172,36 @@ void mountvfs ( char *P1 )
      else
          printf(VFS_02_FAILURE);
      //printf("mountvfs_TO_BE_DONE\n");*/
+    //printf("\nmount flag=%d and error flag=%d\n",mount_flag,error_flag);
     if(!mount_flag)
-        console_output(MOUNTVFS,mount_vfs(P1),P1);
-    else
-        console_output(MOUNTVFS,4,P1);
-    if(!error_flag)
     {
-        init_tree();
-        //display_hashdump();
+        console_output(MOUNTVFS,mount_vfs(P1),P1);
+        if(mount_flag && !error_flag)
+        {
+            init_tree();
+            //display_hashdump();
+        }
     }
+    else
+        console_output(MOUNTVFS,3,P1);
+
 
 }
 
 void unmountvfs ( char *P1 )
 {
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
-    if(!error_flag && mount_flag)
-        update_free_list();
 
     if(mount_flag)
     {
+        //fd_array_dump('1');
         console_output(UNMOUNTVFS,unmount_vfs(P1),P1);
-        if(!error_flag)
+        if(!mount_flag /*&& !error_flag*/)
         {
+            update_free_list();
+            free_hash();
             free_tree(head);
             free(free_list);
-            free_hash();
             free(file_descriptors);
 
             /* Nullify all globals except flags */
@@ -200,7 +212,7 @@ void unmountvfs ( char *P1 )
         }
     }
     else
-        console_output(UNMOUNTVFS,4,P1);
+        console_output(UNMOUNTVFS,3,P1);
     /*
     update_free_list();
     if(unmount_vfs(P1))
@@ -230,7 +242,7 @@ void makedir ( char *P1, char *P2 )
     if(!error_flag && mount_flag)
         console_output(MAKEDIR,insert_tokenized_file_descriptor(P2,P1,1),P1);
     else
-        console_output(MAKEDIR,1,P1);
+        console_output(MAKEDIR,5,P1);
 
 }
 
@@ -248,7 +260,7 @@ void deletedir ( char *P1 )
     if(!error_flag && mount_flag)
         console_output(DELDIR,del(P1,1),P1);
     else
-        console_output(DELDIR,1,P1);
+        console_output(DELDIR,4,P1);
 }
 
 void movedir ( char *P1, char *P2 )
@@ -257,9 +269,9 @@ void movedir ( char *P1, char *P2 )
     //move_dir(P1,P2);
     //printf("movedir_TO_BE_DONE\n");
     if(!error_flag && mount_flag)
-        console_output(MOVEDIR,move_dir(P1,P2),P1);
+        console_output(MOVEDIR,move_dir(P1,P2,1),P1);
     else
-        console_output(MOVEDIR,1,P1);
+        console_output(MOVEDIR,8,P1);
 }
 
 void listdir ( char *P1, int P2, char *P3 )
@@ -268,10 +280,11 @@ void listdir ( char *P1, int P2, char *P3 )
     //printf("listdir_TO_BE_DONE\n");
     //list_directory(P1,P2,P3);
     //printf("\n");
+    //fd_array_dump('1');
     if(!error_flag && mount_flag)
         console_output(LISTDIR,list_directory(P1,P2,P3),P1);
     else
-        console_output(LISTDIR,1,P1);
+        console_output(LISTDIR,3,P1);
 }
 
 void addfile ( char *P1, char *P2, char *P3 )
@@ -290,7 +303,9 @@ void addfile ( char *P1, char *P2, char *P3 )
     if(!error_flag && mount_flag)
         console_output(ADDFILE,create_file(P1,P2,P3),P1);
     else
-        console_output(ADDFILE,1,P1);
+        console_output(ADDFILE,4,P1);
+
+    //fd_array_dump('1');
 }
 
 void listfile ( char *P1, char *P2 )
@@ -301,7 +316,7 @@ void listfile ( char *P1, char *P2 )
     if(!error_flag && mount_flag)
         console_output(LISTFILE,list_file(P1,P2,"w"),P1);
     else
-        console_output(LISTFILE,1,P1);
+        console_output(LISTFILE,4,P1);
 }
 
 void updatefile ( char *P1, char *P2 )
@@ -310,7 +325,7 @@ void updatefile ( char *P1, char *P2 )
     if(!error_flag && mount_flag)
         console_output(UPDATEFILE,update_file(P1,P2),P1);
     else
-        console_output(UPDATEFILE,1,P1);
+        console_output(UPDATEFILE,4,P1);
 
 
     //data_block_t *data_block_read=read_block(sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors,4);
@@ -332,7 +347,7 @@ void removefile ( char *P1 )
     if(!error_flag && mount_flag)
         console_output(REMOVEFILE,del(P1,2),P1);
     else
-        console_output(REMOVEFILE,1,P1);
+        console_output(REMOVEFILE,2,P1);
 }
 
 void movefile ( char *P1, char *P2 )
@@ -341,9 +356,9 @@ void movefile ( char *P1, char *P2 )
     //move_dir(P1,P2);
     //printf("movefile_TO_BE_DONE\n");
     if(!error_flag && mount_flag)
-        console_output(MOVEFILE,move_dir(P1,P2),P1);
+        console_output(MOVEFILE,move_dir(P1,P2,2),P1);
     else
-        console_output(MOVEFILE,1,P1);
+        console_output(MOVEFILE,6,P1);
 }
 
 void copyfile ( char *P1, char *P2 )
@@ -362,7 +377,7 @@ void copyfile ( char *P1, char *P2 )
     if(!error_flag && mount_flag)
         console_output(COPYFILE,copy_file(P1,P2),P1);
     else
-        console_output(COPYFILE,1,P1);
+        console_output(COPYFILE,5,P1);
 
     // data_block_t *data_block_read=read_block(sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors,5);
     // printf("\nData written :\n%s\n",data_block_read->buffer_size);
@@ -377,7 +392,7 @@ void exportfile ( char *P1, char *P2 )
     if(!error_flag && mount_flag)
         console_output(EXPORTFILE,list_file(P1,P2,"wb"),P1);
     else
-        console_output(EXPORTFILE,1,P1);
+        console_output(EXPORTFILE,4,P1);
 }
 
 void searchfile ( char *P1, char *P2 )
@@ -386,7 +401,7 @@ void searchfile ( char *P1, char *P2 )
     if(!error_flag && mount_flag)
         console_output(SEARCHFILE,search_file(P1,P2),P1);
     else
-        console_output(SEARCHFILE,3,P1);
+        console_output(SEARCHFILE,2,P1);
     /*
     struct list *res;
     res=(struct list *)malloc(sizeof(struct list));
@@ -407,7 +422,16 @@ void searchfile ( char *P1, char *P2 )
 
             }
             */
-   // printf("searchfile_TO_BE_DONE\n");
+    // printf("searchfile_TO_BE_DONE\n");
+}
+
+void Bsearchfile ( char *P1) {
+
+	if(!error_flag && mount_flag)
+        console_output(BSEARCH,Bsearch(P1),P1);
+    	else
+        console_output(BSEARCH,1,P1);
+	
 }
 
 

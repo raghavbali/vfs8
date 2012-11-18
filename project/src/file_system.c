@@ -109,17 +109,26 @@ int insert_tokenized_file_descriptor(char* P1, char *P2, int type)
     char temp1[100];
     char name[100],path[100];
 
+    /* insufficient args */
+    if(strlen(P1)<1 || strlen(P2)<1 /*|| type==NULL*/)
+        return 0;
+    /* invalid name
+    if(strstr(P2,"/")!=NULL)
+        return 2;
+*/
     strcpy(name,P1);
     strcpy(path,P2);
 
     /* to counter the addtional '/' in the beginning of the path */
     // if(strlen(path)!=1) path++;
-    if(strcmp(path,"/"))
+    if((path[strlen(path)-1]!=delims[0]) && strcmp(name,"/"))
         strcat(path,"/");
-    //  if(strcmp(path,"/"))
-    strcat(path,name);
-    //   else
-    //     strcpy(path,name);
+
+    if(strcmp(name,"/"))
+        strcat(path,name);
+    else
+        flag=3;//     strcpy(path,name);
+    //printf("\npath=%s and name=%s\n",path,name);
     /* cannot create another root directory */
     if(strcmp(path,"/"))
     {
@@ -153,7 +162,7 @@ int insert_tokenized_file_descriptor(char* P1, char *P2, int type)
                 }
                 //create_file_descriptor(&fd_dummy,temp1,-1) ;
                 /* Do not insert if reached the required level */
-                //printf("\nInside while result=%s temp1=%s\n",result,temp1);
+               // printf("\nInside while result=%s temp1=%s and path=%s\n",result,temp1,path);
                 if ( strcmp(path,temp1) && insert(result,temp1,type)==TRUE)
                     flag=SUCCESS;
                 else
@@ -165,7 +174,7 @@ int insert_tokenized_file_descriptor(char* P1, char *P2, int type)
             }
         }
         /* Insert the actual node */
-        //printf("\n\n\nInserting actual node name=%s path=%s",name,path);
+       // printf("\n\n\nInserting actual node name=%s path=%s",name,path);
         if(strlen(temp1)>0 && insert(name, path, type))
             flag=SUCCESS;
         else
@@ -249,6 +258,12 @@ int search_free_list(char *name,char *path, int type)
                 }
             }
         }
+        else
+        {
+            free(fd_temp);
+            fd_temp=NULL;
+            flag=FALSE;
+        }
 
     }
     else
@@ -314,6 +329,10 @@ int del(char *name,int type)
     int status=0;
     // name++;
 
+    /* insufficient args */
+    if(strlen(name)<1 /*||  type==NULL*/)
+        return 0;
+
     if(strcmp(name,"/"))
     {
         create_file_descriptor(&fd_temp,name,name,-1);
@@ -358,6 +377,10 @@ int list_directory(char *dir_path,int flag,char *text_file_path)
     narry_tree_t *source_ptr;
     FILE *fptr;
 
+    /* insufficient args */
+    if(!strlen(dir_path)||!strlen(text_file_path))
+        return 0;
+
     /* invalid flag */
     if(flag!=0 && flag!=1)
         return 2;
@@ -370,7 +393,7 @@ int list_directory(char *dir_path,int flag,char *text_file_path)
         if((fptr=fopen(text_file_path,"w")) == NULL)
         {
             //printf("\nError occured in file opening\n");
-            return 3;
+            return 4;
         }
         else
         {
@@ -397,7 +420,7 @@ int list_directory(char *dir_path,int flag,char *text_file_path)
 *   Input       :   Source directory path, destination directory path
 *   Output      :   True for Success and False for Failure
 */
-int move_dir(char *src, char *dest)
+int move_dir(char *src, char *dest,int type)
 {
     file_descriptor_t *fd_temp_src,*fd_temp_dest,*fd_temp;
     narry_tree_t *source_ptr,*dest_ptr;
@@ -406,19 +429,32 @@ int move_dir(char *src, char *dest)
 
     /* if src is missing */
     if(!strlen(src))
-        return 3;
+        return 0;
     /* if destination is missing */
     if(!strlen(dest))
-        return 4;
+        return 0;
 
     source_ptr=head;
     //source_ptr=source_ptr->leftchild;
 
     create_file_descriptor(&fd_temp_src,src,src,-1);
-
+    //printf("\nmove:src=%s:fd=%s:head=%p:\n",fd_temp_src->loc_path,src,source_ptr->file_desc->loc_path);
     /* find source */
     if((source_ptr=(narry_tree_t *)find_node(&source_ptr,&fd_temp_src))!=NULL)
     {
+
+        /* source cannot be a file */
+        if(type==1)
+        if(source_ptr->file_desc->file_type==2)
+        {
+            if(fd_temp_src)
+                free(fd_temp_src);
+            fd_temp_src=NULL;
+            source_ptr=NULL;
+            return 4;/* source cannot be a file */
+        }
+
+
         dest_ptr=head;
 
         create_file_descriptor(&fd_temp_dest,dest,dest,-1);
@@ -439,6 +475,7 @@ int move_dir(char *src, char *dest)
             /* add a method to check if destination is a file. return failure if it is a file*/
 
             /* check if destination already has same named file/dir as is the source */
+            if(type==1)
             if ((search_node(&dest_ptr->leftchild,&fd_temp))!=-1)
             {
                 if(fd_temp_src)
@@ -447,8 +484,49 @@ int move_dir(char *src, char *dest)
                     free(fd_temp_dest);
                 if(fd_temp)
                     free(fd_temp);
+                fd_temp_src=NULL;
+                source_ptr=NULL;
+                fd_temp_dest=NULL;
+                fd_temp=NULL;
                 return 5;/* destination path already has specified directory */
             }
+
+            /* check if destination is source's child */
+            if(type==1)
+            if(!strcmp(dest_ptr->parent->file_desc->loc_path,source_ptr->file_desc->loc_path))
+            {
+                if(fd_temp_src)
+                    free(fd_temp_src);
+                if(fd_temp_dest)
+                    free(fd_temp_dest);
+                if(fd_temp)
+                    free(fd_temp);
+                fd_temp_src=NULL;
+                source_ptr=NULL;
+                fd_temp_dest=NULL;
+                dest_ptr=NULL;
+                fd_temp=NULL;
+                return 6;/* cannot move parent to chilf */
+            }
+
+            /* source cannot be a file */
+            if(type==1)
+            if(dest_ptr->file_desc->file_type==2)
+            {
+                if(fd_temp_src)
+                    free(fd_temp_src);
+                if(fd_temp_dest)
+                    free(fd_temp_dest);
+                if(fd_temp)
+                    free(fd_temp);
+                fd_temp_src=NULL;
+                source_ptr=NULL;
+                fd_temp_dest=NULL;
+                dest_ptr=NULL;
+                fd_temp=NULL;
+                return 7;/* destination cannot be a file */
+            }
+
             if(update_pointers(&source_ptr))
             {
                 move_node(&source_ptr,&dest_ptr);
@@ -459,8 +537,17 @@ int move_dir(char *src, char *dest)
         else
         {
             /* destination not found */
-            free(fd_temp_src);
-            free(fd_temp_dest);
+            if(fd_temp_src)
+                free(fd_temp_src);
+            if(fd_temp_dest)
+                free(fd_temp_dest);
+            if(fd_temp)
+                free(fd_temp);
+            fd_temp_src=NULL;
+            source_ptr=NULL;
+            fd_temp_dest=NULL;
+            dest_ptr=NULL;
+            fd_temp=NULL;
             return 2;
         }
     }
@@ -468,6 +555,8 @@ int move_dir(char *src, char *dest)
     {
         /* source not found */
         free(fd_temp_src);
+        fd_temp_src=NULL;
+        source_ptr=NULL;
         return 1;
     }
     if(fd_temp_src)
@@ -476,6 +565,11 @@ int move_dir(char *src, char *dest)
         free(fd_temp_dest);
     if(fd_temp)
         free(fd_temp);
+    fd_temp_src=NULL;
+    source_ptr=NULL;
+    fd_temp_dest=NULL;
+    dest_ptr=NULL;
+    fd_temp=NULL;
     return SUCCESS;
 }
 
@@ -490,16 +584,77 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
     //file_descriptor_t *fd_temp;
     //narry_tree_t *source_ptr;
     char fullpath[100];
+    char delim[]="/";
     int index=0;
     unsigned int metaheader_size=0;
+    file_descriptor_t *fd_temp;
+    FILE *fptr;
+    long fsize=0;
+    //printf("\ncopyfile : %s\n",dest_dir_path);
 
-    strcpy(fullpath,dest_dir_path);
-    if(strcmp(fullpath,"/"))
+    /* insufficient args */
+    if(!strlen(dest_dir_path)||!strlen(file_name)||!strlen(data_file_path))
+        return 0;
+    /* invalid character in filename */
+    if(strstr(file_name,"/")!=NULL)
+        return 2;
+
+    /* check if last char is '/' , then do not copy it */
+
+    if(strlen(dest_dir_path)!=1 && (dest_dir_path[strlen(dest_dir_path)-1]==delim[0]))
+    {
+        strncpy(fullpath,dest_dir_path,strlen(dest_dir_path)-1);
+        fullpath[strlen(dest_dir_path)-1]='\0';
+    }
+    else
+        strcpy(fullpath,dest_dir_path);
+    //printf("\ncreate copy : %s\n",fullpath);
+
+    create_file_descriptor(&fd_temp,fullpath,fullpath,-1);
+
+
+    if(strlen(fullpath)!=1 && (fullpath[strlen(fullpath)-1]!=delim[0]))
+    {
         strcat(fullpath,"/");
+        //printf("\ncat1 : %s\n",fullpath);
+    }
+
+    /* check if path exists */
+    /* check if destination already has same named file/dir as is the source */
+    if (search_node(&head->leftchild,&fd_temp)==-1)
+    {
+        free(fd_temp);
+        fd_temp=NULL;
+        return 3;
+    }
+
+    if(fd_temp)
+    {
+        free(fd_temp);
+        fd_temp=NULL;
+    }
+    /*Concatenate filename to path to create */
     strcat(fullpath,file_name);
 
+    /* check if filesize exceeds block limit */
+    if ( (fptr=fopen(data_file_path,"r")) == NULL )
+    {
+        return 5;
+    }
 
-    /* find source */
+    rewind(fptr);
+    /* add code to check if input file is text or not and update filetype in descriptor accordingly. 1-dir,2-txt,3-non text */
+    fseek(fptr,0,SEEK_END);
+    fsize=ftell(fptr);
+    /* if file size is greater than block size, err out */
+    if(fsize>1024)
+    {
+        fclose(fptr);
+        return 6;
+    }
+
+
+    /* find free fd index */
     if(!(index=search_free_list(file_name,fullpath,2)))
     {
         return 4;/* file system full */
@@ -511,6 +666,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
             //index=source_ptr->file_desc->loc_number;
             if(index!=0)
             {
+
                 metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
                 if(write_block(read_text_from_user_file ( data_file_path ),metaheader_size ,index)==TRUE)
                 {
@@ -521,7 +677,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
                 else
                 {
                     del(fullpath,2);
-                    return 1;/* unable to create new file */
+                    return 5;/* unable to create new file */
                 }
             }
             else
@@ -533,7 +689,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
         else
         {
             del(fullpath,2);
-            return 3;/* unable to create new file */
+            return 5;/* unable to create new file */
         }
     }
 }
@@ -548,52 +704,77 @@ int copy_file(char *src, char *dest)
 {
     file_descriptor_t *fd_temp;
     narry_tree_t *source_ptr,*dest_ptr;
-    char fullpath[100];
+    char fullpath[100],source_path[100],dest_path[100];
+    char delim[]="/";
     char name[100];
     int index=0;
     unsigned int metaheader_size=0;
 
     /* if src is missing */
     if(!strlen(src))
-        return 3;
+        return 0;
     /* if destination is missing */
     if(!strlen(dest))
-        return 4;
+        return 0;
 
     source_ptr=head;
     //source_ptr=source_ptr->leftchild;
 
-    create_file_descriptor(&fd_temp,src,src,-1);
 
+    if(strlen(src)!=1 && (src[strlen(src)-1]==delim[0]))
+        strncpy(source_path,src,strlen(src)-1);
+    else
+        strcpy(source_path,src);
+    //printf("\ncopy : %s\n",source_path);
+
+
+
+    create_file_descriptor(&fd_temp,source_path,source_path,-1);
     /* find source */
     if((source_ptr=(narry_tree_t *)find_node(&source_ptr,&fd_temp))!=NULL)
     {
         free(fd_temp);
 
         dest_ptr=head;
+        //printf("\ncopyfile before :dest:%s\n",dest_path);
+        if(strlen(dest)!=1 && (dest[strlen(dest)-1]==delim[0]))
+        {
+            strncpy(dest_path,dest,strlen(dest)-1);
+            dest_path[strlen(dest)-1]='\0';
+            //printf("\ncopyfile inside if:dest:%s\n",dest_path);
+        }
+        else
+            strcpy(dest_path,dest);
 
-        create_file_descriptor(&fd_temp,dest,dest,-1);
+        //printf("\ncopyfile:dest:%s\n",dest_path);
+
+
+        create_file_descriptor(&fd_temp,dest_path,dest_path,-1);
         /* find destination */
         if((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp))!=NULL)
         {
             /* cannot copy dir to file */
-            if(source_ptr->file_desc->file_type==1 && dest_ptr->file_desc->file_type==2 )
+            if(source_ptr->file_desc->file_type==1 /*&& dest_ptr->file_desc->file_type==2 */)
             {
                 if(fd_temp)
                     free(fd_temp);
-                return 5;/* cannot copy dir to file */
+                return 3;/* cannot copy dir to file */
             }
 
-            strcpy(name,"/");
+
+            //strcpy(name,"/");
+            /* prepare filename to be searched at destination */
+            strcpy(name,dest_path);
+            strcat(name,"/");
             if(strcmp(source_ptr->file_desc->file_name,"/"))
                 strcat(name,source_ptr->file_desc->file_name);
-
+            //printf("\ncopyfile:name:%s\n",name);
             create_file_descriptor(&fd_temp,source_ptr->file_desc->file_name,name,-1);
             if ((search_node(&dest_ptr->leftchild,&fd_temp))!=-1)
             {
                 if(fd_temp)
                     free(fd_temp);
-                return 7;/* destination already has same named file/dir */
+                return 2;/* destination already has same named file/dir */
             }
 
             /* add a method to check if destination is a file. return failure if it is a file*/
@@ -605,7 +786,7 @@ int copy_file(char *src, char *dest)
             /* find free index */
             if(!(index=search_free_list(source_ptr->file_desc->file_name,fullpath,2)))
             {
-                return 6;/* vfs is full */
+                return 4;/* vfs is full */
             }
             else
             {
@@ -623,19 +804,19 @@ int copy_file(char *src, char *dest)
                         else
                         {
                             del(fullpath,2);
-                            return 8;/* unable to copyfile */
+                            return 4;/* unable to copyfile */
                         }
                     }
                     else
                     {
                         del(fullpath,2);
-                        return 8;/* unable to copyfile */
+                        return 4;/* unable to copyfile */
                     }
                 }
                 else
                 {
                     del(fullpath,2);
-                    return 8;/* unable to copyfile */
+                    return 4;/* unable to copyfile */
                 }
             }
 
@@ -668,13 +849,13 @@ void fd_array_dump(char condition)
     int i;
 
     printf("\n\n For condition : %c :\n",condition);
-    printf("\n\n Index\t\tloc_path\t\tfile_name\t\tloc_number");
+    printf("\n\n Index\t\tloc_path\t\t\t\t\t\tfile_name\t\t\t\t\t\tloc_number");
     for(i=0; i<max_file_descriptors; i++)
     {
         /* search for an empty slot */
         if(free_list[i]==condition)
         {
-            printf("\n\n %d\t\t%-30s\t\t%-30s\t\t%d",i,file_descriptors[i].loc_path,file_descriptors[i].file_name,file_descriptors[i].loc_number);
+            printf("\n\n %d\t\t%-50s\t\t%-40s\t\t%d",i,file_descriptors[i].loc_path,file_descriptors[i].file_name,file_descriptors[i].loc_number);
         }
     }
 }
@@ -691,6 +872,28 @@ int update_file(char *dest_file_path,char *data_file_path)
     int index=0;
     unsigned int metaheader_size=0;
     file_descriptor_t *fd_temp;
+    long fsize=0;
+    FILE *fptr;
+
+    if(!strlen(dest_file_path)||!strlen(data_file_path))
+        return 0;
+
+    /* check if filesize exceeds block limit */
+    if ( (fptr=fopen(data_file_path,"r")) == NULL )
+    {
+        return 2;
+    }
+
+    rewind(fptr);
+    /* add code to check if input file is text or not and update filetype in descriptor accordingly. 1-dir,2-txt,3-non text */
+    fseek(fptr,0,SEEK_END);
+    fsize=ftell(fptr);
+    /* if file size is greater than block size, err out */
+    if(fsize>1024)
+    {
+        fclose(fptr);
+        return 3;
+    }
 
     create_file_descriptor(&fd_temp,dest_file_path,dest_file_path,-1);
 
@@ -706,18 +909,27 @@ int update_file(char *dest_file_path,char *data_file_path)
             else
             {
                 del(dest_file_path,2);
+                if(fd_temp)
+                    free(fd_temp);
+                fd_temp=NULL;
                 return 2;/* destination file not found */
             }
         }
         else
         {
             del(dest_file_path,2);
-            return 5;/* invalid file name */
+            if(fd_temp)
+                free(fd_temp);
+            fd_temp=NULL;
+            return 1;/* invalid file name */
         }
     }
     else
     {
         del(dest_file_path,2);
+        if(fd_temp)
+                free(fd_temp);
+            fd_temp=NULL;
         return 1;/* source file not found */
     }
 }
@@ -736,18 +948,8 @@ int list_file(char *file_path,char *dest_file_path,char *mode)
     file_descriptor_t *fd_temp;
     data_block_t *data_block_read;
 
-    /* Check if similar named  */
-    if(access( dest_file_path, F_OK ) != -1 )
-        return 6;
-
-
-    /* if src is missing */
-    if(!strlen(file_path))
-        return 3;
-    /* if destination is missing */
-    if(!strlen(dest_file_path))
-        return 4;
-
+    if(!strlen(file_path)||!strlen(dest_file_path)||!strlen(mode))
+        return 0;
 
     create_file_descriptor(&fd_temp,file_path,file_path,-1);
 
@@ -757,13 +959,19 @@ int list_file(char *file_path,char *dest_file_path,char *mode)
         if(file_descriptors[index].file_type==1)
         {
             del(file_path,2);
-            return 7;
+            if(fd_temp)
+                free(fd_temp);
+            fd_temp=NULL;
+            if(!strcmp(mode,"w"))
+                return 2; /* for list file */
+            else
+                return 3;/* for export file */
         }
 
         if(index!=0)
         {
             metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
-            data_block_read=read_block(sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors,index);
+            data_block_read=(data_block_t *)read_block(sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors,index);
             if(write_block_to_userfile(data_block_read,dest_file_path ,mode)==TRUE)
             {
                 return SUCCESS;
@@ -771,18 +979,29 @@ int list_file(char *file_path,char *dest_file_path,char *mode)
             else
             {
                 del(file_path,2);
-                return 2;/* destination file not found */
+                if(fd_temp)
+                    free(fd_temp);
+                fd_temp=NULL;
+
+                /* destination file not found */
+            if(!strcmp(mode,"w"))
+                return 3; /* for list file */
+            else
+                return 2;/* for export file */
             }
         }
         else
         {
             del(file_path,2);
-            return 5;/* invalid file name */
+            return 2;/* not a text file */
         }
     }
     else
     {
         del(file_path,2);
+        if(fd_temp)
+                free(fd_temp);
+            fd_temp=NULL;
         return 1;/* source file not found */
     }
 }
@@ -801,12 +1020,15 @@ int search_file(char *characters,char *dest_file_path)
     int counter=0;
     file_match_count=0;
 
+     if(!strlen(characters)||!strlen(dest_file_path))
+        return 0;
+
     //result=(struct list *)malloc(sizeof(struct list));
     result=search_files(characters);
     if(result==NULL)
     {
         //puts("FILEs NOT FOUND");
-        return 3;
+        return SUCCESS;
     }
     else
     {
@@ -816,7 +1038,7 @@ int search_file(char *characters,char *dest_file_path)
             if((fptr=fopen(dest_file_path,"r+")) == NULL)
             {
                 //printf("Error occured in file opening\n");
-                return 1;
+                return 0;
             }
             while(result!=NULL)
             {
@@ -833,6 +1055,57 @@ int search_file(char *characters,char *dest_file_path)
 }
 
 
+/* initializing binary search tree */
+void init_btree()
+{
+	file_descriptor_t *fd_temp;
+	bstNode *bst = NULL;
+   	 int i;
+   	 fd_temp=&(/*vfs_header.*/file_descriptors[0]);
+   	 for(i=0; i</*MAXFILEDESCRIPTORS*/max_file_descriptors; i++)
+        {
+           if(/*vfs_header.*/free_list[i]!='0')
+            {
+                fd_temp=&(/*vfs_header.*/file_descriptors[i]);
+                //printf("\n inside for loc=%s file_name=%s",fd_temp->loc_path,fd_temp->file_name);
+                /* Actual Node insertion */
+                
+                bst = createBinaryTree(bst,fd_temp);            
+            }
 
+        }
+        headBst =  bst;	
+	
+    
+   	 
+ }
 
+/*	
+	Searching with the help of Binary Search tree on basis of full path.
+*/
+
+int Bsearch (char *file_path) {
+	file_descriptor_t *fd_temp1;
+	char *file_p;
+	if(!strlen(file_path)) {
+		return 0;
+	}
+	else {
+		init_btree();
+		create_file_descriptor(&fd_temp1,file_path,file_path,-1);
+		//fd_temp1->loc_path[strlen(fd_temp1->loc_path)] = '\0';
+		
+		if(BinaryTreesearching(headBst,fd_temp1)) {
+			Bsearch_flag = 11;	
+		}
+		else{
+			Bsearch_flag = 7;
+		}
+		printf("file path %s",fd_temp1->loc_path);
+		DisplayBst(headBst);
+		free_btree(headBst);
+		
+	}
+	return SUCCESS;
+}
 
