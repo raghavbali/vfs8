@@ -82,6 +82,7 @@ int main( int argc, char *argv[] )
         processcommand( command, par1, par2, par3 );
     }
 
+    /* Do not uncomment if last line of script is unmount */
     //fd_array_dump('1');
 }
 
@@ -124,7 +125,7 @@ void processcommand( char *command, char *P1, char *P2, char *P3 )
     else if( strcmp(command, "searchfile") == 0 )
         searchfile (P1,P2);
     else if( strcmp(command, "Bsearchfile") == 0 )
-        Bsearchfile (P1);    
+        Bsearchfile (P1);
     else
         printf("Ignoring invalid command %s\n", command);
 }
@@ -149,6 +150,7 @@ void createvfs ( char *P1, int P2 )
         init_tree();
     }
     */
+    /*
     if(!mount_flag)
     {
         if(head)
@@ -156,7 +158,7 @@ void createvfs ( char *P1, int P2 )
         free(free_list);
         free(file_descriptors);
     }
-
+*/
 
 }
 
@@ -268,6 +270,7 @@ void movedir ( char *P1, char *P2 )
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
     //move_dir(P1,P2);
     //printf("movedir_TO_BE_DONE\n");
+    //fd_array_dump('1');
     if(!error_flag && mount_flag)
         console_output(MOVEDIR,move_dir(P1,P2,1),P1);
     else
@@ -356,7 +359,7 @@ void movefile ( char *P1, char *P2 )
     //move_dir(P1,P2);
     //printf("movefile_TO_BE_DONE\n");
     if(!error_flag && mount_flag)
-        console_output(MOVEFILE,move_dir(P1,P2,2),P1);
+        console_output(MOVEFILE,move_file(P1,P2,2),P1);
     else
         console_output(MOVEFILE,6,P1);
 }
@@ -431,7 +434,7 @@ void Bsearchfile ( char *P1) {
         console_output(BSEARCH,Bsearch(P1),P1);
     	else
         console_output(BSEARCH,1,P1);
-	
+
 }
 
 

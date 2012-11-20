@@ -55,7 +55,12 @@ int create_file_descriptor(file_descriptor_t **file_desc,char *name,char *path,i
         return TRUE;
     }
     else
+    {
+        if(file_desc)
+            free(file_desc);
         return FALSE;
+    }
+
 
 }
 

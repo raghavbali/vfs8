@@ -11,7 +11,7 @@ void console_output(int module, int index,char *output)
         {
         case 0  :
             printf("createvfs_FAILURE: %s\n",ERR_VFS_CREATE_00);
-            error_flag=1;
+            //error_flag=1;
             break;
         case 1  :
             printf("createvfs_FAILURE: %s\n",ERR_VFS_CREATE_01);
@@ -393,7 +393,7 @@ void console_output(int module, int index,char *output)
             file_match_count=0;/* setting back to 0; */
             break;
         }
-        
+
             /* MakeDIR */
     if(BSEARCH==module)
         switch(index)
@@ -409,7 +409,7 @@ void console_output(int module, int index,char *output)
             printf("BSEARCH_SUCCESS:");
             if(Bsearch_flag == 11)
             	printf("FILE_FOUND\n");
-            else if(Bsearch_flag == 7) 
+            else if(Bsearch_flag == 7)
             	printf("FILE_NOT_FOUND\n");
             break;
         }
