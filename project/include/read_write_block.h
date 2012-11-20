@@ -32,7 +32,11 @@ Parameter: file name to be read.
 return structure containing data block.
 */
 
-data_block_t *read_text_from_user_file(char filename[]);
+data_block_t *read_text_from_user_file(char filename[],long file_size);
+
+
+//list data block
+int write_block_to_userfile(data_block_t *data_block,char *text_file_path,char *mode,long file_size);
 
 /*
  End of File
