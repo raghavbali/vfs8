@@ -17,14 +17,19 @@ int hash(char *file_name)
     char first_char;
     int hash_value =-1;
     first_char = file_name[0];
-    if(first_char >= 'A' && first_char <= 'Z')
-        hash_value=first_char%65 ;
-    else if (first_char >= 'a' && first_char <= 'z')
-        hash_value=(first_char%97)+26;
-    else if(first_char >= '0' && first_char <= '9')
-	hash_value=(first_char%48)+52;
+    if(isalnum(first_char)) 
+	{   
+		if(first_char >= 'A' && first_char <= 'Z')
+        	hash_value=first_char%65 ;
+		else if (first_char >= 'a' && first_char <= 'z')
+	        hash_value=(first_char%97)+26;
+		else if(first_char >= '0' && first_char <= '9')
+		hash_value=(first_char%48)+52;
+	}
+      else if((first_char != '/'))
+		 hash_value=62;
     else
-        hash_value =-1;     //File name Validation needs to be done
+       hash_value =-1;     //File name Validation needs to be done
     return hash_value;
 }
 
@@ -338,17 +343,6 @@ void free_hash()
 {
     int i;
     struct list *temp,*temp1;
-    /*
-    for(i=0;i<=HASH_SIZE;i++)
-    {
-        if(hash_table[i])
-            {
-                free_lists(hash_table[i]);
-                //hash_table[i]=NULL;
-                //free(hash_table[i]);
-            }
-    }
-    */
     for(i=0; i<=HASH_SIZE; i++)
 	{	if(hash_table[i]!=NULL)
 		{

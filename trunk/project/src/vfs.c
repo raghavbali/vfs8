@@ -21,12 +21,21 @@ int create_vfs(char *P1, int P2)
     int i;
     long int block_size=1024;
 
+
+    /* vfs header local variables */
+    block_size_t max_file_desc;
+    char *local_free_list;
+    file_descriptor_t *local_file_descriptors;
+    main_header_t local_vfs_header;
+
     /* Insufficient paramters */
     if(strlen(P1)<1)
         return 0;
+    /*
+    CHECK FOR 2nd paramter MISSING
     if(P2==NULL)
         return 0;
-
+    */
 
     /* cannot create VFS greate than 700MB */
     if(P2>1024)
@@ -44,15 +53,16 @@ int create_vfs(char *P1, int P2)
         return 5;
 
 
-    strcpy(vfs_header.label_name,P1);
+    //strcpy(vfs_header.label_name,P1);
+    strcpy(local_vfs_header.label_name,P1);
 
     /* Check if similar named  */
-    if(access( vfs_header.label_name, F_OK ) != -1 )
+    if(access( local_vfs_header.label_name/*vfs_header.label_name*/, F_OK ) != -1 )
         return 1;
     else
     {
         /* Create VFS */
-        if((vfs_file=fopen(vfs_header.label_name,"wb+"))==NULL)
+        if((vfs_file=fopen(local_vfs_header.label_name/*vfs_header.label_name*/,"wb+"))==NULL)
         {
             /* could not create vfs */
             return 2;
@@ -62,10 +72,11 @@ int create_vfs(char *P1, int P2)
 
             //else
             {
-                vfs_header.vfs_size=P2;
+                //vfs_header.vfs_size=P2;
+                local_vfs_header.vfs_size=P2;
                 /* Multiply block size to user defined size of VFS */
-                block_size=(block_size*vfs_header.vfs_size)+sizeof(vfs_header);
-                max_file_descriptors=vfs_header.vfs_size;//*1024;
+                block_size=(block_size*local_vfs_header.vfs_size/*vfs_header.vfs_size*/)+sizeof(local_vfs_header);
+                /*max_file_descriptors*/max_file_desc=local_vfs_header.vfs_size;/*vfs_header.vfs_size;*///*1024;
 
                 /* secure file size by writing data at the last byte of the file */
                 fseek(vfs_file,block_size-1, SEEK_SET);
@@ -74,22 +85,22 @@ int create_vfs(char *P1, int P2)
                 /* reset to beginning of file */
                 rewind(vfs_file);
                 /* initialize freelist */
-                free_list=(char *)malloc(sizeof(char)*max_file_descriptors);
+                /*free_list*/local_free_list=(char *)malloc(sizeof(char)*max_file_desc/*max_file_descriptors*/);
 
-                for(i=0; i<max_file_descriptors/*MAXFILEDESCRIPTORS*/; i++)
+                for(i=0; i<max_file_desc/*max_file_descriptors*//*MAXFILEDESCRIPTORS*/; i++)
                 {
                     // vfs_header.free_list[i]='0';
-                    free_list[i]='0';
+                    /*free_list[i]*/local_free_list[i]='0';
                 }
 
-                file_descriptors=(file_descriptor_t *)malloc(sizeof(file_descriptor_t)*max_file_descriptors);
+                /*file_descriptors*/local_file_descriptors=(file_descriptor_t *)malloc(sizeof(file_descriptor_t)*max_file_desc/*max_file_descriptors*/);
 
                 /* write back the meta header */
-                fwrite(&vfs_header,sizeof(vfs_header),1,vfs_file);
+                fwrite(&local_vfs_header,sizeof(local_vfs_header),1,vfs_file);
 
                 /* newly added */
-                fwrite(free_list,sizeof(free_list)*max_file_descriptors,1,vfs_file);
-                fwrite(file_descriptors,sizeof(file_descriptors)*max_file_descriptors,1,vfs_file);
+                fwrite(local_free_list,sizeof(local_free_list)*max_file_desc,1,vfs_file);
+                fwrite(local_file_descriptors,sizeof(local_file_descriptors)*max_file_desc,1,vfs_file);
                 /* modification ends */
 
                 //free(free_list);
@@ -97,6 +108,12 @@ int create_vfs(char *P1, int P2)
                 fclose(vfs_file);
 
                 /* success */
+                max_file_desc=0;
+                if(local_file_descriptors)
+                    free(local_file_descriptors);
+                if(local_free_list)
+                    free(local_free_list);
+
                 return SUCCESS;
             }
         }
