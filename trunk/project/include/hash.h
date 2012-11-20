@@ -4,8 +4,7 @@ Description     : Search in hashtable using filename
 Date            : Nov 21 2012
 Version         : 1.0
 ********************************************************************/
-
-#define HASH_SIZE 61
+#define HASH_SIZE 62
 
 struct list
 {

@@ -79,7 +79,7 @@ int init_tree();
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int insert(char* name, char *path, int type);
+int insert(char* name, char *path, int type,long fsize);
 
 /*
 *   Description :   This function inserts into fd array after tokenizing(directory at each level)
@@ -93,7 +93,7 @@ int insert_tokenized_file_descriptor(char* name, char *path, int type);
 *   Input       :   name of the directory, type : 1-directory and 2-file and index
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int insert_file_descriptor(char* name, char *path, int type,int index);
+int insert_file_descriptor(char* name, char *path, int type,int index,long fsize);
 
 /*
 *   Description :   search the free list
@@ -149,6 +149,14 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path);
 *   Output      :   True for Success and False for Failure
 */
 int copy_file(char *src, char *dest);
+
+
+/*
+*   Description :   Move a file from source path to destination path
+*   Input       :   Source file path, destination file path
+*   Output      :   True for Success and False for Failure
+*/
+int move_file(char *src, char *dest,int type);
 
 
 
