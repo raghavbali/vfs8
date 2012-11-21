@@ -607,7 +607,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
     FILE *fptr;
     long fsize=0;
     data_block_t *file_data;
-    //printf("\ncopyfile : %s\n",dest_dir_path);
+    //printf("\ncreatefile : %s\n",dest_dir_path);
 
     /* insufficient args */
     if(!strlen(dest_dir_path)||!strlen(file_name)||!strlen(data_file_path))
@@ -624,9 +624,9 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
     }
     else
         strcpy(fullpath,dest_dir_path);
-    //printf("\ncreate copy : %s\n",fullpath);
+    //printf("\ncreatefile copy : %s\n",fullpath);
 
-    create_file_descriptor(&fd_temp,fullpath,fullpath,-1);
+
 
 
     if(strlen(fullpath)!=1 && (fullpath[strlen(fullpath)-1]!=delim[0]))
@@ -637,10 +637,11 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
 
     /*Concatenate filename to path to create */
     strcat(fullpath,file_name);
-
+    create_file_descriptor(&fd_temp,fullpath,fullpath,-1);
+    //printf("\ncreatefile filename concat : %s %d\n",fullpath,search_node(&head->leftchild,&fd_temp));
     /* check if path exists */
     /* check if destination already has same named file/dir as is the source */
-    if (strcmp(fd_temp->loc_path,"/") && search_node(&head->leftchild,&fd_temp)==-1)
+    if (strcmp(fd_temp->loc_path,"/") && (search_node(&head->leftchild,&fd_temp)!=-1))
     {
         free(fd_temp);
         fd_temp=NULL;
