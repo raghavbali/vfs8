@@ -306,7 +306,7 @@ void addfile ( char *P1, char *P2, char *P3 )
     if(!error_flag && mount_flag)
         console_output(ADDFILE,create_file(P1,P2,P3),P1);
     else
-        console_output(ADDFILE,4,P1);
+        console_output(ADDFILE,7,P1);
 
     //fd_array_dump('1');
 }
