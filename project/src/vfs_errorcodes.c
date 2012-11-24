@@ -370,6 +370,9 @@ void console_output(int module, int index,char *output)
         case 3  :
             printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_03);
             break;
+        case 4  :
+            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_04);
+            break;
         default :
             error_flag=0; /* not in error */
             printf("exportfile_SUCCESS\n");
