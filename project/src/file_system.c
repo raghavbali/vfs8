@@ -506,7 +506,7 @@ int move_dir(char *src, char *dest,int type)
             //printf("\nmove:dest=%s|src=%s and type=%d\n",dest_ptr->parent->file_desc->loc_path,source_ptr->file_desc->loc_path,type);
             if(type==1)
 
-               if(!strncmp(dest_ptr->file_desc->loc_path,source_ptr->file_desc->loc_path,strlen(source_ptr->file_desc->loc_path))) //if(!strcmp(dest_ptr->parent->file_desc->loc_path,source_ptr->file_desc->loc_path))
+                if(!strncmp(dest_ptr->file_desc->loc_path,source_ptr->file_desc->loc_path,strlen(source_ptr->file_desc->loc_path))) //if(!strcmp(dest_ptr->parent->file_desc->loc_path,source_ptr->file_desc->loc_path))
                 {
                     if(fd_temp_src)
                         free(fd_temp_src);
@@ -740,9 +740,9 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
 */
 int copy_file(char *src, char *dest)
 {
-    file_descriptor_t *fd_temp;
-    narry_tree_t *source_ptr,*dest_ptr;
-    char fullpath[100],source_path[100],dest_path[100];
+    file_descriptor_t *fd_temp,*fd_temp_dest;
+    narry_tree_t *source_ptr,*dest_ptr,*dest_ptr_temp;
+    char fullpath[100],source_path[100],dest_path[100],dest_path_folder[100];
     char delim[]="/";
     char name[100];
     int index=0;
@@ -777,7 +777,8 @@ int copy_file(char *src, char *dest)
 
     //printf("\ncopyfile:dest:%s\n",dest_path);
 
-
+    strncpy(dest_path_folder,dest_path,strlen(dest_path)-strlen(rindex(dest_path,'/')));
+    dest_path_folder[strlen(dest_path)-strlen(rindex(dest_path,'/'))]='\0';
 
     create_file_descriptor(&fd_temp,source_path,source_path,-1);
     /* find source */
@@ -786,11 +787,15 @@ int copy_file(char *src, char *dest)
         free(fd_temp);
 
         dest_ptr=head;
+        dest_ptr_temp=head;
 
         create_file_descriptor(&fd_temp,dest_path,dest_path,-1);
+        create_file_descriptor(&fd_temp_dest,dest_path_folder,dest_path_folder,-1);
         /* find destination */
-        if((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp))!=NULL)
+        if(((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp))!=NULL) || (dest_ptr_temp=(narry_tree_t *)find_node(&dest_ptr_temp,&fd_temp_dest))!=NULL)
         {
+            if(dest_ptr==NULL)
+                dest_ptr=dest_ptr_temp;
             /* cannot copy dir to file */
             if(source_ptr->file_desc->file_type==1 /*&& dest_ptr->file_desc->file_type==2 */)
             {
@@ -906,17 +911,19 @@ int copy_file(char *src, char *dest)
 */
 int move_file(char *src, char *dest,int type)
 {
-    file_descriptor_t *fd_temp_src,*fd_temp_dest,*fd_temp;
-    narry_tree_t *source_ptr,*dest_ptr;
+    file_descriptor_t *fd_temp_src,*fd_temp_dest,*fd_temp,*fd_temp_dest_folder;
+    narry_tree_t *source_ptr,*dest_ptr,*dest_ptr_temp;
     char name[100];
     char destination[100];
+    char destination_folderonly[100];
     char source[100];
     char delim[]="/";
     data_block_t *file_data;
     int index_source=0,index_destination=0;
     unsigned int metaheader_size=0;
+    int i=0;
 
-
+    fd_temp_src=fd_temp_dest=fd_temp=NULL;
     /* if src is missing */
     if(!strlen(src))
         return 0;
@@ -944,6 +951,9 @@ int move_file(char *src, char *dest,int type)
     else
         strcpy(destination,dest);
 
+    strncpy(destination_folderonly,destination,strlen(destination)-strlen(rindex(destination,'/')));
+    destination_folderonly[strlen(destination)-strlen(rindex(destination,'/'))]='\0';
+    //printf("\nmovefile:src=%s and dest=%s folder=%s %s %ld\n",source,destination,destination_folderonly,rindex(destination,'/'),strlen(destination)-strlen(rindex(destination,'/')));
     create_file_descriptor(&fd_temp_src,source,source,-1);
     //printf("\nmove:fd=%s:src=%s:head=%s:\n",fd_temp_src->loc_path,src,source_ptr->file_desc->loc_path);
     /* find source */
@@ -951,11 +961,16 @@ int move_file(char *src, char *dest,int type)
     {
 
         dest_ptr=head;
+        dest_ptr_temp=head;
 
         create_file_descriptor(&fd_temp_dest,destination,destination,-1);
+        create_file_descriptor(&fd_temp_dest_folder,destination_folderonly,destination_folderonly,-1);
         /* find destination */
-        if((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp_dest))!=NULL)
+        //printf("\nmovefile:src=%s and dest=%s folder=%s %ld\n",source,destination,destination_folderonly,strlen(destination)-strlen(rindex(destination,'/')));
+        if(((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp_dest))!=NULL) || (dest_ptr_temp=(narry_tree_t *)find_node(&dest_ptr_temp,&fd_temp_dest_folder))!=NULL)
         {
+            if(dest_ptr==NULL)
+                dest_ptr=dest_ptr_temp;
             /* if destination is only a directory path */
             if(dest_ptr->file_desc->file_type!=2 && dest_ptr->file_desc->file_type!=3)
             {
@@ -1024,6 +1039,7 @@ int move_file(char *src, char *dest,int type)
         }
         else
         {
+            printf("\ndest ptr=%p\n",dest_ptr);
             /* destination not found */
             if(fd_temp_src)
                 free(fd_temp_src);
@@ -1250,7 +1266,7 @@ int list_file(char *file_path,char *dest_file_path,char *mode)
 */
 int search_file(char *characters,char *dest_file_path)
 {
-    struct list *result;
+    struct list *result=NULL;
     FILE *fptr;
     int counter=0;
     file_match_count=0;
@@ -1260,6 +1276,7 @@ int search_file(char *characters,char *dest_file_path)
 
     //result=(struct list *)malloc(sizeof(struct list));
     result=search_files(characters);
+    //printf("\nresult=%p\n",result);
     if(result==NULL)
     {
         //puts("FILEs NOT FOUND");
@@ -1270,7 +1287,7 @@ int search_file(char *characters,char *dest_file_path)
         if(result!=NULL)
         {
 
-            if((fptr=fopen(dest_file_path,"r+")) == NULL)
+            if((fptr=fopen(dest_file_path,"w")) == NULL)
             {
                 //printf("Error occured in file opening\n");
                 return 0;
