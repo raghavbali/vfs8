@@ -1,9 +1,10 @@
-/*******************************************************************
+/********************************************************************************************
 Name            : Deepthi
 Description     : Search in hashtable using filename
 Date            : Nov 21 2012
-Version         : 1.0
-********************************************************************/
+Version         : 1.1
+Updates         : [Deepthi Nov 26 2012]: Handled Nulls properly to avoid segmentation faults
+*********************************************************************************************/
 #include "../include/main.h"
 #include<stdio.h>
 #include<string.h>
@@ -12,11 +13,9 @@ Version         : 1.0
 int flag_hash= FALSE;
 /*Hash Function*/
 
-int hash(char *file_name)
+int hash(char first_char)
 {
-    char first_char;
     int hash_value =-1;
-    first_char = file_name[0];
     if(isalnum(first_char)) 
 	{   
 		if(first_char >= 'A' && first_char <= 'Z')
@@ -30,7 +29,7 @@ int hash(char *file_name)
 		 hash_value=62;
     else
        hash_value =-1;     //File name Validation needs to be done
-    return hash_value;
+return hash_value;
 }
 
 
@@ -83,7 +82,7 @@ int display_hashdump()
 int insert_into_list(/*int hash_value,*/ file_descriptor_t *fd/*char file[],char path[]*/)
 {
     struct list *node;
-    int hash_value = hash(fd->file_name);
+    int hash_value = hash(fd->file_name[0]);
     struct list *prev,*curr;
 
     node = (struct list *)malloc(sizeof(struct list));
@@ -164,7 +163,7 @@ int deletion(char *f,char *p)
 {
     int flag=0;
     struct list * temp1, *temp2,*del;
-    int hash_value = hash(f);
+    int hash_value = hash(f[0]);
 
     temp1 = hash_table[hash_value];
     temp2 = hash_table[hash_value];
@@ -275,19 +274,22 @@ struct list* search_start_point(file_descriptor_t *fd_temp/*char *name_File*/)
 
 struct list* search_files(char *startchars)
 {
-    int index,length;
+    int index,length,digit=0;
+	char c;
     struct list *start,*first,*temp,*head;
     head=(struct list *)malloc(sizeof(struct list));
     temp=head;
-    index = hash(startchars);
+	c= startchars[0];
+    index = hash(c);
+	//printf("\n index is %d",index);
     start=hash_table[index];
     length=strlen(startchars);
-    if(hash_table[index] == NULL)
-    {
-        return NULL;
-    }
+	if(hash_table[index] == NULL)
+    	{	//puts("11111");
+        	return NULL;
+    	}
     else if(index == -1)
-    {
+    {	//puts("2222222");
         return NULL;
     }
     else
@@ -295,8 +297,9 @@ struct list* search_files(char *startchars)
         while(start!=NULL)
         {
             if (strncmp(start->file_desc->file_name,startchars,length)==0)
-            {
-                first= (struct list *)malloc(sizeof(struct list));
+            {	
+		digit=digit+1;                
+		first= (struct list *)malloc(sizeof(struct list));
                 /*strcpy(first->path_name,start->path_name);
                 strcpy(first->file_name,start->file_name);*/
                 first->file_desc=start->file_desc;
@@ -308,8 +311,13 @@ struct list* search_files(char *startchars)
         }
 
     }
+	if(digit==0)
+		return NULL;
+	else
+	//puts("3333");
     return head->next;
 }
+
 
 
 
