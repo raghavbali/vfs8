@@ -188,6 +188,9 @@ int unmount_vfs(char name[])
     /* err out if access is denied*/
     if(access( name, R_OK & W_OK ) == -1 )
         return 2;
+    /* unmounting incorrect vfs name */
+    if(strcmp( name, vfs_header.label_name ) !=0 )
+        return 1;
     /* err out if cannot write */
     if((vfs_file=fopen(name,"rb+"))==NULL)
     {
