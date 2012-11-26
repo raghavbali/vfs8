@@ -158,7 +158,7 @@ void createvfs ( char *P1, int P2 )
         free(free_list);
         free(file_descriptors);
     }
-*/
+    */
 
 }
 
@@ -242,7 +242,12 @@ void makedir ( char *P1, char *P2 )
     //printf("makedir_TO_BE_DONE\n");
     */
     if(!error_flag && mount_flag)
-        console_output(MAKEDIR,insert_tokenized_file_descriptor(P2,P1,1),P1);
+    {
+        if(strlen(P1)>70 || strlen(P2)>30)
+            printf("makedir_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(MAKEDIR,insert_tokenized_file_descriptor(P2,P1,1),P1);
+    }
     else
         console_output(MAKEDIR,5,P1);
 
@@ -260,7 +265,12 @@ void deletedir ( char *P1 )
         //fd_array_dump('1');
     */
     if(!error_flag && mount_flag)
-        console_output(DELDIR,del(P1,1),P1);
+    {
+        if(strlen(P1)>100)
+            printf("deletedir_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(DELDIR,del(P1,1),P1);
+    }
     else
         console_output(DELDIR,4,P1);
 }
@@ -272,7 +282,12 @@ void movedir ( char *P1, char *P2 )
     //printf("movedir_TO_BE_DONE\n");
     //fd_array_dump('1');
     if(!error_flag && mount_flag)
-        console_output(MOVEDIR,move_dir(P1,P2,1),P1);
+    {
+        if(strlen(P1)>100 || strlen(P2)>100)
+            printf("movedir_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(MOVEDIR,move_dir(P1,P2,1),P1);
+    }
     else
         console_output(MOVEDIR,8,P1);
 }
@@ -285,7 +300,12 @@ void listdir ( char *P1, int P2, char *P3 )
     //printf("\n");
     //fd_array_dump('1');
     if(!error_flag && mount_flag)
-        console_output(LISTDIR,list_directory(P1,P2,P3),P1);
+    {
+        if(strlen(P1)>100)
+            printf("listdir_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(LISTDIR,list_directory(P1,P2,P3),P1);
+    }
     else
         console_output(LISTDIR,3,P1);
 }
@@ -304,7 +324,12 @@ void addfile ( char *P1, char *P2, char *P3 )
     }
     */
     if(!error_flag && mount_flag)
-        console_output(ADDFILE,create_file(P1,P2,P3),P1);
+    {
+        if(strlen(P1)>70 || strlen(P2)>30)
+            printf("addfile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(ADDFILE,create_file(P1,P2,P3),P1);
+    }
     else
         console_output(ADDFILE,7,P1);
 
@@ -317,7 +342,12 @@ void listfile ( char *P1, char *P2 )
     //printf("listfile_TO_BE_DONE\n");
 
     if(!error_flag && mount_flag)
-        console_output(LISTFILE,list_file(P1,P2,"w"),P1);
+    {
+        if(strlen(P1)>100)
+            printf("listfile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(LISTFILE,list_file(P1,P2,"w"),P1);
+    }
     else
         console_output(LISTFILE,4,P1);
 }
@@ -326,7 +356,12 @@ void updatefile ( char *P1, char *P2 )
 {
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
     if(!error_flag && mount_flag)
-        console_output(UPDATEFILE,update_file(P1,P2),P1);
+    {
+        if(strlen(P1)>100)
+            printf("updatefile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(UPDATEFILE,update_file(P1,P2),P1);
+    }
     else
         console_output(UPDATEFILE,4,P1);
 
@@ -348,7 +383,11 @@ void removefile ( char *P1 )
         printf("\nCould not remove file");
         */
     if(!error_flag && mount_flag)
+    {
+        if(strlen(P1)>100)
+            printf("removefile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
         console_output(REMOVEFILE,del(P1,2),P1);
+    }
     else
         console_output(REMOVEFILE,2,P1);
 }
@@ -359,7 +398,12 @@ void movefile ( char *P1, char *P2 )
     //move_dir(P1,P2);
     //printf("movefile_TO_BE_DONE\n");
     if(!error_flag && mount_flag)
-        console_output(MOVEFILE,move_file(P1,P2,2),P1);
+    {
+        if(strlen(P1)>100 || strlen(P2)>100)
+            printf("movefile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(MOVEFILE,move_file(P1,P2,2),P1);
+    }
     else
         console_output(MOVEFILE,6,P1);
 }
@@ -378,7 +422,12 @@ void copyfile ( char *P1, char *P2 )
         }
     */
     if(!error_flag && mount_flag)
-        console_output(COPYFILE,copy_file(P1,P2),P1);
+    {
+        if(strlen(P1)>100 || strlen(P2)>100)
+            printf("copyfile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(COPYFILE,copy_file(P1,P2),P1);
+    }
     else
         console_output(COPYFILE,5,P1);
 
@@ -393,7 +442,12 @@ void exportfile ( char *P1, char *P2 )
     //printf("exportfile_TO_BE_DONE\n");
 
     if(!error_flag && mount_flag)
-        console_output(EXPORTFILE,list_file(P1,P2,"wb"),P1);
+    {
+        if(strlen(P1)>100)
+            printf("exportfile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(EXPORTFILE,list_file(P1,P2,"wb"),P1);
+    }
     else
         console_output(EXPORTFILE,4,P1);
 }
@@ -402,7 +456,12 @@ void searchfile ( char *P1, char *P2 )
 {
     /* Call the appropriate function with given arguments and display appropriate output on the screen */
     if(!error_flag && mount_flag)
-        console_output(SEARCHFILE,search_file(P1,P2),P1);
+    {
+        if(strlen(P1)>100)
+            printf("searchfile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(SEARCHFILE,search_file(P1,P2),P1);
+    }
     else
         console_output(SEARCHFILE,2,P1);
     /*
@@ -428,11 +487,17 @@ void searchfile ( char *P1, char *P2 )
     // printf("searchfile_TO_BE_DONE\n");
 }
 
-void Bsearchfile ( char *P1) {
+void Bsearchfile ( char *P1)
+{
 
-	if(!error_flag && mount_flag)
-        console_output(BSEARCH,Bsearch(P1),P1);
-    	else
+    if(!error_flag && mount_flag)
+    {
+        if(strlen(P1)>100)
+            printf("Bsearchfile_FAILURE: FILE_NAME/PATH_NAME TOO LONG\n");
+        else
+            console_output(BSEARCH,Bsearch(P1),P1);
+    }
+    else
         console_output(BSEARCH,1,P1);
 
 }
