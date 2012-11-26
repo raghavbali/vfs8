@@ -695,7 +695,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
             {
 
                 metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
-                file_data=(data_block_t *)read_text_from_user_file ( data_file_path, fsize);
+                file_data=(data_block_t *) (intptr_t) read_text_from_user_file ( data_file_path, fsize);
                 if(file_data && (write_block(file_data,metaheader_size ,index)==TRUE))
                 {
                     //if(file_descriptors[index].file_type!=1)
@@ -742,10 +742,11 @@ int copy_file(char *src, char *dest)
 {
     file_descriptor_t *fd_temp,*fd_temp_dest;
     narry_tree_t *source_ptr,*dest_ptr,*dest_ptr_temp;
-    char fullpath[100],source_path[100],dest_path[100],dest_path_folder[100];
+    char fullpath[100],source_path[100],dest_path[100],dest_path_folder[100],dest_path_file[100],temp_file_name[100];
     char delim[]="/";
     char name[100];
     int index=0;
+    int i;
     unsigned int metaheader_size=0;
 
     /* if src is missing */
@@ -780,6 +781,13 @@ int copy_file(char *src, char *dest)
     strncpy(dest_path_folder,dest_path,strlen(dest_path)-strlen(rindex(dest_path,'/')));
     dest_path_folder[strlen(dest_path)-strlen(rindex(dest_path,'/'))]='\0';
 
+    strcpy(temp_file_name,rindex(dest_path,'/'));
+    for(i=1; i<strlen(temp_file_name); i++)
+        dest_path_file[i-1]=temp_file_name[i];
+    //dest_path_file[strlen(dest_path)-strlen(rindex(dest_path,'/'))]='\0';
+    dest_path_file[i-1]='\0';
+
+
     create_file_descriptor(&fd_temp,source_path,source_path,-1);
     /* find source */
     if((source_ptr=(narry_tree_t *)find_node(&source_ptr,&fd_temp))!=NULL)
@@ -791,19 +799,24 @@ int copy_file(char *src, char *dest)
 
         create_file_descriptor(&fd_temp,dest_path,dest_path,-1);
         create_file_descriptor(&fd_temp_dest,dest_path_folder,dest_path_folder,-1);
+        //dest_path_file++;
+        //printf("\ncopy file: des folder=%s and file=%s\n",dest_path_folder,dest_path_file);
         /* find destination */
         if(((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp))!=NULL) || (dest_ptr_temp=(narry_tree_t *)find_node(&dest_ptr_temp,&fd_temp_dest))!=NULL)
         {
             if(dest_ptr==NULL)
                 dest_ptr=dest_ptr_temp;
+            else
+                dest_ptr_temp=NULL;
             /* cannot copy dir to file */
             if(source_ptr->file_desc->file_type==1 /*&& dest_ptr->file_desc->file_type==2 */)
             {
                 if(fd_temp)
                     free(fd_temp);
+                if(fd_temp_dest)
+                    free(fd_temp_dest);
                 return 3;/* cannot copy dir to file */
             }
-
 
             //strcpy(name,"/");
             /* prepare filename to be searched at destination */
@@ -812,30 +825,36 @@ int copy_file(char *src, char *dest)
             if(strcmp(source_ptr->file_desc->file_name,"/"))
                 strcat(name,source_ptr->file_desc->file_name);
             //printf("\ncopyfile:name:%s\n",name);
+
+            /*
             create_file_descriptor(&fd_temp,source_ptr->file_desc->file_name,name,-1);
             if ((search_node(&dest_ptr->leftchild,&fd_temp))!=-1)
             {
                 if(fd_temp)
                     free(fd_temp);
-                return 2;/* destination already has same named file/dir */
+                //return 2; destination already has same named file/dir
             }
-
-            /* if destination path does not have file*/
-            if(dest_ptr->file_desc->file_type!=2 && dest_ptr->file_desc->file_type!=3)
+            */
+            /* if destination path does not have file already present*/
+            //printf("\ndt=%p head=%p\n",dest_ptr_temp,head);
+            if((dest_ptr_temp!=NULL) && (dest_ptr->file_desc->file_type==1 /*|| dest_ptr->file_desc->file_type!=3*/))
             {
+                // printf("\ncopyfile:when dest has no file filetype=%d\n",dest_ptr->file_desc->file_type);
                 strcpy(fullpath,dest_ptr->file_desc->loc_path);
                 if(strcmp(fullpath,"/"))
                     strcat(fullpath,"/");
-                strcat(fullpath,source_ptr->file_desc->file_name);
-
+                /*strcat(fullpath,source_ptr->file_desc->file_name);*/
+                strcat(fullpath,dest_path_file);
+                //printf("\ncopyfile strcat=%s\n",fullpath);
                 /* find free index */
-                if(!(index=search_free_list(source_ptr->file_desc->file_name,fullpath,source_ptr->file_desc->file_type)))
+                if(!(index=search_free_list(dest_path_file/*source_ptr->file_desc->file_name*/,fullpath,source_ptr->file_desc->file_type)))
                 {
+                    // printf("\ncopyfile:when dest has no file mentioned search free list index=%d\n",index);
                     return 4;/* vfs is full */
                 }
                 else
                 {
-                    if(insert(source_ptr->file_desc->file_name, fullpath, source_ptr->file_desc->file_type,source_ptr->file_desc->file_size)==TRUE)
+                    if(insert(dest_path_file/*source_ptr->file_desc->file_name*/, fullpath, source_ptr->file_desc->file_type,source_ptr->file_desc->file_size)==TRUE)
                     {
                         if(index!=0)
                         {
@@ -848,18 +867,21 @@ int copy_file(char *src, char *dest)
                             }
                             else
                             {
+                                // printf("\ncopyfile:when dest has no file mentioned writeblock fails=%d\n",index);
                                 del(fullpath,source_ptr->file_desc->file_type);
                                 return 4;/* unable to copyfile */
                             }
                         }
                         else
                         {
+                            //printf("\ncopyfile:when dest has no file mentioned 2.search free list index=%d\n",index);
                             del(fullpath,source_ptr->file_desc->file_type);
                             return 4;/* unable to copyfile */
                         }
                     }
                     else
                     {
+                        //printf("\ncopyfile:when dest has no file mentioned insert fails=%d %s %s %d\n",index,source_ptr->file_desc->file_name, fullpath, source_ptr->file_desc->file_type,source_ptr->file_desc->file_size);
                         del(fullpath,source_ptr->file_desc->file_type);
                         return 4;/* unable to copyfile */
                     }
@@ -868,16 +890,29 @@ int copy_file(char *src, char *dest)
             /* if destinationpath includes file name */
             else
             {
-                metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
-                if(write_block(read_block ( metaheader_size ,source_ptr->file_desc->loc_number ),metaheader_size ,dest_ptr->file_desc->loc_number)==TRUE)
+                //printf("\ncopyfile:when dest has file \n");
+                if(dest_ptr->file_desc->file_type!=1)
                 {
-                    if(fd_temp)
-                        free(fd_temp);
-                    return SUCCESS;
+                    metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
+                    if(write_block(read_block ( metaheader_size ,source_ptr->file_desc->loc_number ),metaheader_size ,dest_ptr->file_desc->loc_number)==TRUE)
+                    {
+                        if(fd_temp)
+                            free(fd_temp);
+                        return SUCCESS;
+                    }
+                    else
+                    {
+                        //printf("\ncopyfile:when dest has file mentioned write block fails\n");
+                        return 4;/* unable to copyfile */
+                    }
                 }
                 else
                 {
-                    return 4;/* unable to copyfile */
+                    if(fd_temp)
+                        free(fd_temp);
+                    if(fd_temp_dest)
+                        free(fd_temp_dest);
+                    return 2;/* path found does not have a file name */
                 }
             }
 
@@ -916,6 +951,8 @@ int move_file(char *src, char *dest,int type)
     char name[100];
     char destination[100];
     char destination_folderonly[100];
+    char destination_fileonly[100];
+    char destination_file_temp[100];
     char source[100];
     char delim[]="/";
     data_block_t *file_data;
@@ -953,6 +990,12 @@ int move_file(char *src, char *dest,int type)
 
     strncpy(destination_folderonly,destination,strlen(destination)-strlen(rindex(destination,'/')));
     destination_folderonly[strlen(destination)-strlen(rindex(destination,'/'))]='\0';
+
+    strcpy(destination_file_temp,rindex(destination,'/'));
+    for(i=1; i<strlen(destination_file_temp); i++)
+        destination_fileonly[i-1]=destination_file_temp[i];
+
+    destination_fileonly[i-1]='\0';
     //printf("\nmovefile:src=%s and dest=%s folder=%s %s %ld\n",source,destination,destination_folderonly,rindex(destination,'/'),strlen(destination)-strlen(rindex(destination,'/')));
     create_file_descriptor(&fd_temp_src,source,source,-1);
     //printf("\nmove:fd=%s:src=%s:head=%s:\n",fd_temp_src->loc_path,src,source_ptr->file_desc->loc_path);
@@ -971,8 +1014,10 @@ int move_file(char *src, char *dest,int type)
         {
             if(dest_ptr==NULL)
                 dest_ptr=dest_ptr_temp;
+            else
+                dest_ptr_temp=NULL;
             /* if destination is only a directory path */
-            if(dest_ptr->file_desc->file_type!=2 && dest_ptr->file_desc->file_type!=3)
+            if((dest_ptr_temp!=NULL) && (dest_ptr->file_desc->file_type==1))
             {
                 /* fetch parent's loc path and concatinate / to the end of it */
                 if(dest_ptr->parent)
@@ -983,10 +1028,11 @@ int move_file(char *src, char *dest,int type)
                 else
                     strcpy(name,"/");
                 //if(strcmp(source_ptr->file_desc->file_name,"/"))
-                strcat(name,source_ptr->file_desc->file_name);
+                strcat(name,destination_fileonly /*source_ptr->file_desc->file_name*/);
 
-                create_file_descriptor(&fd_temp,source_ptr->file_desc->file_name,name,-1);
-
+                //create_file_descriptor(&fd_temp,destination_fileonly/*source_ptr->file_desc->file_name*/,name,-1);
+                /* update the filename */
+                strcpy(source_ptr->file_desc->file_name,destination_fileonly);
                 if(update_pointers(&source_ptr))
                 {
                     move_node(&source_ptr,&dest_ptr);
@@ -996,29 +1042,46 @@ int move_file(char *src, char *dest,int type)
             /* if destination path already has the file */
             else
             {
-                /* fetch meta heade size */
-                metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
-                /* fetch source block index and destination block index*/
-                index_source=source_ptr->file_desc->loc_number;
-                index_destination=dest_ptr->file_desc->loc_number;
-
-                /* read source block and write(overwrite) to destination block */
-                file_data=read_block ( metaheader_size ,index_source );
-                if(write_block(file_data,metaheader_size ,index_destination)==TRUE)
+                if(dest_ptr->file_desc->file_type!=1)
                 {
-                    /* delete source file */
-                    del(source_ptr->file_desc->loc_path,2);
-                    if(fd_temp_src)
-                        free(fd_temp_src);
-                    if(fd_temp_dest)
-                        free(fd_temp_dest);
-                    if(fd_temp)
-                        free(fd_temp);
-                    fd_temp_src=NULL;
-                    source_ptr=NULL;
-                    fd_temp_dest=NULL;
-                    fd_temp=NULL;
-                    return SUCCESS;
+                    /* fetch meta heade size */
+                    metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
+                    /* fetch source block index and destination block index*/
+                    index_source=source_ptr->file_desc->loc_number;
+                    index_destination=dest_ptr->file_desc->loc_number;
+
+                    /* read source block and write(overwrite) to destination block */
+                    file_data=(data_block_t *) (intptr_t) read_block ( metaheader_size ,index_source );
+                    if(write_block(file_data,metaheader_size ,index_destination)==TRUE)
+                    {
+                        /* delete source file */
+                        del(source_ptr->file_desc->loc_path,2);
+                        if(fd_temp_src)
+                            free(fd_temp_src);
+                        if(fd_temp_dest)
+                            free(fd_temp_dest);
+                        if(fd_temp)
+                            free(fd_temp);
+                        fd_temp_src=NULL;
+                        source_ptr=NULL;
+                        fd_temp_dest=NULL;
+                        fd_temp=NULL;
+                        return SUCCESS;
+                    }
+                    else
+                    {
+                        if(fd_temp_src)
+                            free(fd_temp_src);
+                        if(fd_temp_dest)
+                            free(fd_temp_dest);
+                        if(fd_temp)
+                            free(fd_temp);
+                        fd_temp_src=NULL;
+                        source_ptr=NULL;
+                        fd_temp_dest=NULL;
+                        fd_temp=NULL;
+                        return 2;/* unable to copyfile */
+                    }
                 }
                 else
                 {
@@ -1039,7 +1102,7 @@ int move_file(char *src, char *dest,int type)
         }
         else
         {
-            printf("\ndest ptr=%p\n",dest_ptr);
+            //printf("\ndest ptr=%p\n",dest_ptr);
             /* destination not found */
             if(fd_temp_src)
                 free(fd_temp_src);
@@ -1222,7 +1285,7 @@ int list_file(char *file_path,char *dest_file_path,char *mode)
         if(index!=0)
         {
             metaheader_size=sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors;
-            data_block_read=(data_block_t *)read_block(sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors,index);
+            data_block_read=(data_block_t *) (intptr_t) read_block(sizeof(vfs_header)+sizeof(char)*max_file_descriptors+sizeof(file_descriptor_t)*max_file_descriptors,index);
             if(write_block_to_userfile(data_block_read,dest_file_path ,mode,file_descriptors[index].file_size)==TRUE)
             {
                 return SUCCESS;
@@ -1275,7 +1338,7 @@ int search_file(char *characters,char *dest_file_path)
         return 0;
 
     //result=(struct list *)malloc(sizeof(struct list));
-    result=search_files(characters);
+    result=(struct list *) (intptr_t) search_files(characters);
     //printf("\nresult=%p\n",result);
     if(result==NULL)
     {
@@ -1303,6 +1366,7 @@ int search_file(char *characters,char *dest_file_path)
             fclose(fptr);
             return SUCCESS;
         }
+        return SUCCESS;
     }
 }
 
@@ -1365,5 +1429,6 @@ int Bsearch (char *file_path)
     }
     return SUCCESS;
 }
+
 
 
