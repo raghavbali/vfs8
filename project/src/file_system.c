@@ -326,16 +326,27 @@ void update_free_list()
 *   Input       :   name of the directory, type : 1-directory and 2-file
 *   Output      :   True(1) if successful, FALSE(0) otherwise
 */
-int del(char *name,int type)
+int del(char *target,int type)
 {
     int loc_number=0;
     file_descriptor_t *fd_temp;
     int status=0;
+    char name[100];
+    char delim[]="/";
     // name++;
 
     /* insufficient args */
-    if(strlen(name)<1 /*||  type==NULL*/)
+    if(strlen(target)<1 /*||  type==NULL*/)
         return 0;
+
+        /* check if last char is '/' , then do not copy it */
+    if(strlen(target)!=1 && (target[strlen(target)-1]==delim[0]))
+    {
+        strncpy(name,target,strlen(target)-1);
+        name[strlen(target)-1]='\0';
+    }
+    else
+        strcpy(name,target);
 
     if(strcmp(name,"/"))
     {
@@ -472,6 +483,7 @@ int move_dir(char *src, char *dest,int type)
         if((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp_dest))!=NULL)
         {
             /* fetch parent's loc path and concatinate / to the end of it */
+           // printf("\nDestination found as %s\n",dest_ptr->file_desc->loc_path);
             if(dest_ptr->parent)
             {
                 strcpy(name,dest_ptr->file_desc->loc_path);
@@ -503,10 +515,10 @@ int move_dir(char *src, char *dest,int type)
                 }
 
             /* check if destination is source's child */
-            //printf("\nmove:dest=%s|src=%s and type=%d\n",dest_ptr->parent->file_desc->loc_path,source_ptr->file_desc->loc_path,type);
+            //printf("\nmove:dest=%s|src=%s and type=%d and name=%c\n",dest_ptr->file_desc->loc_path,source_ptr->file_desc->loc_path,type,dest_ptr->file_desc->loc_path[strlen(source_ptr->file_desc->loc_path)]);
             if(type==1)
 
-                if(!strncmp(dest_ptr->file_desc->loc_path,source_ptr->file_desc->loc_path,strlen(source_ptr->file_desc->loc_path))) //if(!strcmp(dest_ptr->parent->file_desc->loc_path,source_ptr->file_desc->loc_path))
+                if(!strncmp(dest_ptr->file_desc->loc_path,source_ptr->file_desc->loc_path,strlen(source_ptr->file_desc->loc_path)) && dest_ptr->file_desc->loc_path[strlen(source_ptr->file_desc->loc_path)]=='/')//if(!strcmp(dest_ptr->parent->file_desc->loc_path,source_ptr->file_desc->loc_path))
                 {
                     if(fd_temp_src)
                         free(fd_temp_src);
@@ -519,7 +531,7 @@ int move_dir(char *src, char *dest,int type)
                     fd_temp_dest=NULL;
                     dest_ptr=NULL;
                     fd_temp=NULL;
-                    return 6;/* cannot move parent to chilf */
+                    return 6;/* cannot move parent to child */
                 }
 
             /* source cannot be a file */
