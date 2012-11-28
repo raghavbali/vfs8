@@ -37,23 +37,7 @@ int display_hashdump()
 {
     int i=0;
     struct list *temp;
-   /* for(i=0; i<=HASH_SIZE; i++)
-    {
-        while(hash_table[i]!=NULL)
-        {
-            temp = hash_table[i];
-            while(temp!=NULL)
-            {
-                printf("%s\t", temp->file_desc->file_name);
-                temp=temp->next;
-            }
-            printf("\n");
-            i++;
-            if(i==HASH_SIZE)
-                break;
-        }
-    }*/
-	for(i=0; i<=HASH_SIZE; i++)
+  for(i=0; i<=HASH_SIZE; i++)
 	{	if(hash_table[i]!=NULL)
 		{
 			flag_hash=TRUE;
@@ -87,9 +71,6 @@ int insert_into_list(/*int hash_value,*/ file_descriptor_t *fd/*char file[],char
 
     node = (struct list *)malloc(sizeof(struct list));
 //Store the file name and Fullpath in the node... and inserting in Sorted order
-    /*	strcpy(node->file_name, file);
-    	strcpy(node->path_name, path);
-    	*/
     node->file_desc=fd;
     node->next = NULL;
 
@@ -143,18 +124,7 @@ int insert_into_list(/*int hash_value,*/ file_descriptor_t *fd/*char file[],char
         prev->next = node;
         return 1;
     }
-/*
-    curr=hash_table[hash_value];
-    printf("\nHash data for %d\n",hash_value);
-    int i=0;
-    while(curr!=NULL&&node != NULL)
-        {
-            printf("i=%d--%s--",i,curr->file_desc->file_name);
-            i++;
-            curr=curr->next;
-        }
-    return 1;
-    */
+
 }
 
 
@@ -170,13 +140,13 @@ int deletion(char *f,char *p)
 
     if(temp1==NULL)
     {
-        //printf("no entry to delete");
+        
         return 0;
     }
 
     else if(strcmp(temp1->file_desc->file_name,f)==0 && strcmp(temp1->file_desc->loc_path,p)==0)
     {
-        //printf("%s  in the path %s is deleted",f,p);
+        
         flag=1;
         temp2= temp1->next;
         hash_table[hash_value]=temp2;
@@ -189,7 +159,7 @@ int deletion(char *f,char *p)
         {
             if(strcmp(temp1->file_desc->file_name,f)==0 && strcmp(temp1->file_desc->loc_path,p)==0)
             {
-                //printf("%s  in the path %s is deleted",f,p);
+                
                 {
                     temp2->next=temp1->next;
                     del=temp1;
@@ -208,65 +178,6 @@ int deletion(char *f,char *p)
         return 1;
     }
 }
-
-
-
-
-
-
-/*Used for search if the whole file name is given:
-  Takes the hash key value and file name to searched for as input and assigns that key address location
-  to the start pointer of hash Bucket and start search for the given file from that start location */
-
-struct list* src_file(int index, file_descriptor_t *fd_temp/*char *name_File*/)
-{
-    struct list *start,*first,*temp,*head;
-    head=(struct list *)malloc(sizeof(struct list));
-    temp=head;
-    start=hash_table[index];
-    while(start!=NULL)
-    {
-        if (strcmp(start->file_desc->file_name,fd_temp->file_name)==0)
-        {
-            first= (struct list *)malloc(sizeof(struct list));
-            /*strcpy(first->path_name,start->path_name);
-            strcpy(first->file_name,start->file_name);*/
-            first->file_desc=fd_temp;
-            first->next=NULL;
-            temp->next=first;
-            temp=first;
-        }
-        start = start->next;
-    }
-    return head->next;
-}
-/*This function will take the file name and calculates the hash value based on the first character in file name
-and and calls the src_file function. Returns the FileDescriptor pointer */
-
-struct list* search_start_point(file_descriptor_t *fd_temp/*char *name_File*/)
-{
-    int index;
-    struct list *temp;
-    temp=(struct list *)malloc(sizeof(struct list));
-    index = hash(fd_temp->file_name);
-    if(hash_table[index] == NULL)
-    {
-        //printf("0 Files Found. Search Ended...\n");
-        return NULL;
-    }
-    else if(index == -1)
-    {
-        //printf("Invalid file name\n");
-        return NULL;
-    }
-    else
-    {
-        temp=src_file(index,fd_temp);
-
-    }
-    return temp;
-}
-
 /*Used for search if the prefix of file name is given:
  calculates the hash key value based on the first character given and prefix of file name to searched
  for as input and assigns that key address location to the start pointer of hash Bucket and start search
@@ -279,17 +190,17 @@ struct list* search_files(char *startchars)
     struct list *start,*first,*temp,*head;
     head=(struct list *)malloc(sizeof(struct list));
     temp=head;
-	c= startchars[0];
+    c= startchars[0];
     index = hash(c);
-	//printf("\n index is %d",index);
+	
     start=hash_table[index];
     length=strlen(startchars);
 	if(hash_table[index] == NULL)
-    	{	//puts("11111");
+    	{	
         	return NULL;
     	}
     else if(index == -1)
-    {	//puts("2222222");
+    {	
         return NULL;
     }
     else
@@ -300,8 +211,6 @@ struct list* search_files(char *startchars)
             {	
 		digit=digit+1;                
 		first= (struct list *)malloc(sizeof(struct list));
-                /*strcpy(first->path_name,start->path_name);
-                strcpy(first->file_name,start->file_name);*/
                 first->file_desc=start->file_desc;
                 first->next=NULL;
                 temp->next=first;
@@ -314,13 +223,8 @@ struct list* search_files(char *startchars)
 	if(digit==0)
 		return NULL;
 	else
-	//puts("3333");
     return head->next;
 }
-
-
-
-
 
 void free_lists(struct list *temp)
 {
@@ -329,17 +233,13 @@ void free_lists(struct list *temp)
 
         if(temp->next==NULL)
         {
-            //printf("\nfreeing : %s[%d]",temp->file_desc->file_name,temp->file_desc->loc_number);
             free(temp);
-            //getchar();
             return;
         }
         else
             {
                 free_lists(temp->next);
-                //printf("\nfreeing : %s[%d]",temp->file_desc->file_name,temp->file_desc->loc_number);
-                //free(temp);
-
+                
             }
     }
 
