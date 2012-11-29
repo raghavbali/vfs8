@@ -116,8 +116,19 @@ int insert_tokenized_file_descriptor(char* P1, char *P2, int type)
     if(strstr(P1,"/")!=NULL)
         return 2;
 
+    /* check if path starts with a leading /, else pre-pend it */
+    if(P2[0]!=delims[0])
+    {
+        //strcpy(path,"/");
+        //strcat(path,P2);
+        return 0; // path does not begin with root
+    }
+    else
+        strcpy(path,P2);
+
+
     strcpy(name,P1);
-    strcpy(path,P2);
+
 
     /* to counter the addtional '/' in the beginning of the path */
     // if(strlen(path)!=1) path++;
@@ -339,7 +350,7 @@ int del(char *target,int type)
     if(strlen(target)<1 /*||  type==NULL*/)
         return 0;
 
-        /* check if last char is '/' , then do not copy it */
+    /* check if last char is '/' , then do not copy it */
     if(strlen(target)!=1 && (target[strlen(target)-1]==delim[0]))
     {
         strncpy(name,target,strlen(target)-1);
@@ -356,6 +367,10 @@ int del(char *target,int type)
         {
             free(fd_temp);
             fd_temp=NULL;
+
+            if(type!=file_descriptors[loc_number].file_type)
+                return 1;//trying to delete a folder using removefile.
+
             fd_temp=&(/*vfs_header.*/file_descriptors[loc_number]);
             //printf("\nloc=%d and name=%s\n",fd_temp->loc_number,fd_temp->loc_path);
             status=delete_node(&head->leftchild,&fd_temp);
@@ -483,7 +498,7 @@ int move_dir(char *src, char *dest,int type)
         if((dest_ptr=(narry_tree_t *)find_node(&dest_ptr,&fd_temp_dest))!=NULL)
         {
             /* fetch parent's loc path and concatinate / to the end of it */
-           // printf("\nDestination found as %s\n",dest_ptr->file_desc->loc_path);
+            // printf("\nDestination found as %s\n",dest_ptr->file_desc->loc_path);
             if(dest_ptr->parent)
             {
                 strcpy(name,dest_ptr->file_desc->loc_path);
@@ -789,17 +804,22 @@ int copy_file(char *src, char *dest)
         strcpy(dest_path,dest);
 
     //printf("\ncopyfile:dest:%s\n",dest_path);
+    if(rindex(dest_path,'/')==NULL)
+    {
+        return 2;//cannot find destination
+    }
+    else
+    {
+        strncpy(dest_path_folder,dest_path,strlen(dest_path)-strlen(rindex(dest_path,'/')));
+        dest_path_folder[strlen(dest_path)-strlen(rindex(dest_path,'/'))]='\0';
 
-    strncpy(dest_path_folder,dest_path,strlen(dest_path)-strlen(rindex(dest_path,'/')));
-    dest_path_folder[strlen(dest_path)-strlen(rindex(dest_path,'/'))]='\0';
+        strcpy(temp_file_name,rindex(dest_path,'/'));
+        for(i=1; i<strlen(temp_file_name); i++)
+            dest_path_file[i-1]=temp_file_name[i];
+        //dest_path_file[strlen(dest_path)-strlen(rindex(dest_path,'/'))]='\0';
+        dest_path_file[i-1]='\0';
 
-    strcpy(temp_file_name,rindex(dest_path,'/'));
-    for(i=1; i<strlen(temp_file_name); i++)
-        dest_path_file[i-1]=temp_file_name[i];
-    //dest_path_file[strlen(dest_path)-strlen(rindex(dest_path,'/'))]='\0';
-    dest_path_file[i-1]='\0';
-
-
+    }
     create_file_descriptor(&fd_temp,source_path,source_path,-1);
     /* find source */
     if((source_ptr=(narry_tree_t *)find_node(&source_ptr,&fd_temp))!=NULL)
@@ -1000,14 +1020,22 @@ int move_file(char *src, char *dest,int type)
     else
         strcpy(destination,dest);
 
-    strncpy(destination_folderonly,destination,strlen(destination)-strlen(rindex(destination,'/')));
-    destination_folderonly[strlen(destination)-strlen(rindex(destination,'/'))]='\0';
 
-    strcpy(destination_file_temp,rindex(destination,'/'));
-    for(i=1; i<strlen(destination_file_temp); i++)
-        destination_fileonly[i-1]=destination_file_temp[i];
+    if(rindex(destination,'/')==NULL)
+    {
+        return 2;//cannot find destionation
+    }
+    else
+    {
+        strncpy(destination_folderonly,destination,strlen(destination)-strlen(rindex(destination,'/')));
+        destination_folderonly[strlen(destination)-strlen(rindex(destination,'/'))]='\0';
 
-    destination_fileonly[i-1]='\0';
+        strcpy(destination_file_temp,rindex(destination,'/'));
+        for(i=1; i<strlen(destination_file_temp); i++)
+            destination_fileonly[i-1]=destination_file_temp[i];
+
+        destination_fileonly[i-1]='\0';
+    }
     //printf("\nmovefile:src=%s and dest=%s folder=%s %s %ld\n",source,destination,destination_folderonly,rindex(destination,'/'),strlen(destination)-strlen(rindex(destination,'/')));
     create_file_descriptor(&fd_temp_src,source,source,-1);
     //printf("\nmove:fd=%s:src=%s:head=%s:\n",fd_temp_src->loc_path,src,source_ptr->file_desc->loc_path);
@@ -1017,6 +1045,15 @@ int move_file(char *src, char *dest,int type)
 
         dest_ptr=head;
         dest_ptr_temp=head;
+
+        if(source_ptr->file_desc->file_type==1)
+        {
+            if(fd_temp_src)
+                free(fd_temp_src);
+            fd_temp_src=NULL;
+            source_ptr=NULL;
+            return 1;/* source filename not mentioned */
+        }
 
         create_file_descriptor(&fd_temp_dest,destination,destination,-1);
         create_file_descriptor(&fd_temp_dest_folder,destination_folderonly,destination_folderonly,-1);
