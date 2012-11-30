@@ -401,20 +401,35 @@ int del(char *target,int type)
 *   Input       :   Directory Path, Flag (0-Non recirsive, 1-Recirsive), Text File path to print output to
 *   Output      :   NA
 */
-int list_directory(char *dir_path,int flag,char *text_file_path)
+int list_directory(char *directory_path,int flag,char *text_file_path)
 {
     file_descriptor_t *fd_temp;
     narry_tree_t *source_ptr;
+    char dir_path[100];
+    char delim[]="/";
     FILE *fptr;
 
     /* insufficient args */
-    if(!strlen(dir_path)||!strlen(text_file_path))
+    if(!strlen(directory_path)||!strlen(text_file_path))
         return 0;
+
+    // fd_array_dump('1');
 
     /* invalid flag */
     if(flag!=0 && flag!=1)
         return 2;
     source_ptr=head;
+
+    /* check if last char is '/' , then do not copy it */
+    if(strlen(directory_path)!=1 && (directory_path[strlen(directory_path)-1]==delim[0]))
+    {
+        strncpy(dir_path,directory_path,strlen(directory_path)-1);
+        dir_path[strlen(directory_path)-1]='\0';
+    }
+    else
+        strcpy(dir_path,directory_path);
+
+    //printf("\ndir=%s\n",dir_path);
     create_file_descriptor(&fd_temp,dir_path,dir_path,-1);
     /* find source */
     if((source_ptr=(narry_tree_t *)find_node(&source_ptr,&fd_temp))!=NULL)
@@ -456,25 +471,51 @@ int list_directory(char *dir_path,int flag,char *text_file_path)
 *   Input       :   Source directory path, destination directory path
 *   Output      :   True for Success and False for Failure
 */
-int move_dir(char *src, char *dest,int type)
+int move_dir(char *source/**src*/, char *destination/**dest*/,int type)
 {
     file_descriptor_t *fd_temp_src,*fd_temp_dest,*fd_temp;
     narry_tree_t *source_ptr,*dest_ptr;
     char name[100];
+    char src[100];
+    char dest[100];
+    char delim[]="/";
 
 
     /* if src is missing */
-    if(!strlen(src))
+    if(!strlen(source/*src*/))
         return 0;
     /* if destination is missing */
-    if(!strlen(dest))
+    if(!strlen(destination/*dest*/))
         return 0;
 
     source_ptr=head;
+    //strcpy(src,source);
+    //printf("\nsrc=%s\n",src);
+    //strcpy(dest,destination);
     //source_ptr=source_ptr->leftchild;
 
+    /* check if last char is '/' , then do not copy it*/
+    if(strlen(source)!=1 && (source[strlen(source)-1]==delim[0]))
+    {
+        strncpy(src,source,strlen(source)-1);
+        src[strlen(source)-1]='\0';
+    }
+    else
+        strcpy(src,source);
+
+
+    /* check if last char is '/' , then do not copy it*/
+    if(strlen(destination)!=1 && (destination[strlen(destination)-1]==delim[0]))
+    {
+        strncpy(dest,destination,strlen(destination)-1);
+        dest[strlen(destination)-1]='\0';
+    }
+    else
+        strcpy(dest,destination);
+
+
     create_file_descriptor(&fd_temp_src,src,src,-1);
-    //printf("\nmove:src=%s:fd=%s:head=%s:\n",fd_temp_src->loc_path,src,source_ptr->file_desc->loc_path);
+    //printf("\nmove:src=%s:fd=%s\n",fd_temp_src->loc_path,src);
     /* find source */
     if((source_ptr=(narry_tree_t *)find_node(&source_ptr,&fd_temp_src))!=NULL)
     {
@@ -580,8 +621,8 @@ int move_dir(char *src, char *dest,int type)
                 free(fd_temp_src);
             if(fd_temp_dest)
                 free(fd_temp_dest);
-            if(fd_temp)
-                free(fd_temp);
+            //if(fd_temp!=NULL)
+            //  free(fd_temp);
             fd_temp_src=NULL;
             source_ptr=NULL;
             fd_temp_dest=NULL;
@@ -627,6 +668,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
     //narry_tree_t *source_ptr;
     int type=-1;
     char fullpath[100];
+    char fullpath_copy[100];
     char delim[]="/";
     int index=0;
     unsigned int metaheader_size=0;
@@ -637,6 +679,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
     //printf("\ncreatefile : %s\n",dest_dir_path);
 
     /* insufficient args */
+    //printf("\n%s \t %s \t %s\n",dest_dir_path,file_name,data_file_path);
     if(!strlen(dest_dir_path)||!strlen(file_name)||!strlen(data_file_path))
         return 0;
     /* invalid character in filename */
@@ -654,7 +697,7 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
     //printf("\ncreatefile copy : %s\n",fullpath);
 
 
-
+    strcpy(fullpath_copy,fullpath);
 
     if(strlen(fullpath)!=1 && (fullpath[strlen(fullpath)-1]!=delim[0]))
     {
@@ -673,6 +716,21 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
         free(fd_temp);
         fd_temp=NULL;
         return 3;
+    }
+    if(fd_temp)
+    {
+        free(fd_temp);
+        fd_temp=NULL;
+    }
+
+    /* path does not exist */
+    //printf("\nfull path copy=%s\n",fullpath_copy);
+    create_file_descriptor(&fd_temp,fullpath_copy,fullpath_copy,-1);
+    if (strcmp(fd_temp->loc_path,"/") && (search_node(&head->leftchild,&fd_temp)==-1))
+    {
+        free(fd_temp);
+        fd_temp=NULL;
+        return 5;
     }
     if(fd_temp)
     {
@@ -715,6 +773,8 @@ int create_file(char *dest_dir_path,char *file_name,char *data_file_path)
             type=2;
         else
             type=3;
+
+        // printf("\nfilename=%s and fullpath=%s\n",file_name,fullpath);
         if(insert(file_name, fullpath, type,fsize)==TRUE)
         {
             //index=source_ptr->file_desc->loc_number;
@@ -1387,6 +1447,22 @@ int search_file(char *characters,char *dest_file_path)
         return 0;
 
     //result=(struct list *)malloc(sizeof(struct list));
+    if(strcmp(characters,"/")==0)
+    {
+        file_match_count=1;
+        if((fptr=fopen(dest_file_path,"w")) == NULL)
+        {
+            //printf("Error occured in file opening\n");
+            return 0;
+        }
+        fprintf(fptr,"/\n");
+        fclose(fptr);
+        return SUCCESS;
+
+
+    }
+
+
     result=(struct list *) (intptr_t) search_files(characters);
     //printf("\nresult=%p\n",result);
     if(result==NULL)
@@ -1471,8 +1547,8 @@ int Bsearch (char *file_path)
         {
             Bsearch_flag = 7;
         }
-        printf("file path %s",fd_temp1->loc_path);
-        DisplayBst(headBst);
+        //printf("file path %s",fd_temp1->loc_path);
+        //DisplayBst(headBst);
         free_btree(headBst);
 
     }
