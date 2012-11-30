@@ -1,7 +1,4 @@
 /
-├── /home
-│   ├── /home/sub1
-        └── /home/sub1/sub2
-    └── /home/Mirrors.txt
-└── /sub2
-    └── /sub2/Mirrors.txt
+├── /sub2
+|   └── /sub2/Mirrors.txt
+└── /home
