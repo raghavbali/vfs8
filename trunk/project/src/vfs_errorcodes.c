@@ -10,27 +10,27 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("createvfs_FAILURE: %s\n",ERR_VFS_CREATE_00);
+            printf("createvfs_FAILURE %s\n",ERR_VFS_CREATE_00);
             //error_flag=1;
             break;
         case 1  :
-            printf("createvfs_FAILURE: %s\n",ERR_VFS_CREATE_01);
+            printf("createvfs_FAILURE %s\n",ERR_VFS_CREATE_01);
             //error_flag=1;
             break;
         case 2  :
-            printf("createvfs_FAILURE: %s\n",ERR_VFS_CREATE_02);
+            printf("createvfs_FAILURE %s\n",ERR_VFS_CREATE_02);
             //error_flag=1;
             break;
         case 3  :
-            printf("createvfs_FAILURE: %s\n",ERR_VFS_CREATE_03);
+            printf("createvfs_FAILURE %s\n",ERR_VFS_CREATE_03);
             //error_flag=1;
             break;
         case 4  :
-            printf("createvfs_FAILURE: %s\n",ERR_VFS_CREATE_04);
+            printf("createvfs_FAILURE %s\n",ERR_VFS_CREATE_04);
            // error_flag=1;
             break;
         case 5  :
-            printf("createvfs_FAILURE: %s\n",ERR_VFS_CREATE_05);
+            printf("createvfs_FAILURE %s\n",ERR_VFS_CREATE_05);
            // error_flag=1;
             break;
         default :
@@ -43,19 +43,19 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("mountvfs_FAILURE: %s\n",ERR_VFS_MOUNT_00);
+            printf("mountvfs_FAILURE %s\n",ERR_VFS_MOUNT_00);
             error_flag=1;
             break;
         case 1  :
-            printf("mountvfs_FAILURE: %s\n",ERR_VFS_MOUNT_01);
+            printf("mountvfs_FAILURE %s\n",ERR_VFS_MOUNT_01);
             error_flag=1;
             break;
         case 2  :
-            printf("mountvfs_FAILURE: %s\n",ERR_VFS_MOUNT_02);
+            printf("mountvfs_FAILURE %s\n",ERR_VFS_MOUNT_02);
             error_flag=1;
             break;
         case 3  :
-            printf("mountvfs_FAILURE: %s\n",ERR_VFS_MOUNT_03);
+            printf("mountvfs_FAILURE %s\n",ERR_VFS_MOUNT_03);
             /* vfs is already mounted-do not set err flag *///error_flag=1;
             break;
         default :
@@ -69,19 +69,19 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("unmountvfs_FAILURE: %s\n",ERR_VFS_UNMOUNT_00);
+            printf("unmountvfs_FAILURE %s\n",ERR_VFS_UNMOUNT_00);
             //error_flag=1;
             break;
         case 1  :
-            printf("unmountvfs_FAILURE: %s\n",ERR_VFS_UNMOUNT_01);
+            printf("unmountvfs_FAILURE %s\n",ERR_VFS_UNMOUNT_01);
             //error_flag=1;
             break;
         case 2  :
-            printf("unmountvfs_FAILURE: %s\n",ERR_VFS_UNMOUNT_02);
+            printf("unmountvfs_FAILURE %s\n",ERR_VFS_UNMOUNT_02);
             //error_flag=1;
             break;
         case 3  :
-            printf("unmountvfs_FAILURE: %s\n",ERR_VFS_UNMOUNT_03);
+            printf("unmountvfs_FAILURE %s\n",ERR_VFS_UNMOUNT_03);
             //error_flag=1;
             break;
         default :
@@ -96,22 +96,22 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("makedir_FAILURE: %s\n",ERR_VFS_MAKEDIR_00);
+            printf("makedir_FAILURE %s\n",ERR_VFS_MAKEDIR_00);
             break;
         case 1  :
-            printf("makedir_FAILURE: %s\n",ERR_VFS_MAKEDIR_01);
+            printf("makedir_FAILURE %s\n",ERR_VFS_MAKEDIR_01);
             break;
         case 2  :
-            printf("makedir_FAILURE: %s\n",ERR_VFS_MAKEDIR_02);
+            printf("makedir_FAILURE %s\n",ERR_VFS_MAKEDIR_02);
             break;
         case 3  :
-            printf("makedir_FAILURE: %s\n",ERR_VFS_MAKEDIR_03);
+            printf("makedir_FAILURE %s\n",ERR_VFS_MAKEDIR_03);
             break;
         /*case 4  :
             printf("makedir_FAILURE: %s\n",ERR_VFS_MAKEDIR_04);
             break;*/
         case 5  :
-            printf("makedir_FAILURE: %s\n",ERR_VFS_MAKEDIR_05);
+            printf("makedir_FAILURE %s\n",ERR_VFS_MAKEDIR_05);
             break;
         default :
             error_flag=0; /* not in error */
@@ -125,16 +125,16 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("deletedir_FAILURE: %s\n",ERR_VFS_DELETEDIR_00);
+            printf("deletedir_FAILURE %s\n",ERR_VFS_DELETEDIR_00);
             break;
         case 1  :
-            printf("deletedir_FAILURE: %s\n",ERR_VFS_DELETEDIR_01);
+            printf("deletedir_FAILURE %s\n",ERR_VFS_DELETEDIR_01);
             break;
         case 2  :
-            printf("deletedir_FAILURE: %s\n",ERR_VFS_DELETEDIR_02);
+            printf("deletedir_FAILURE %s\n",ERR_VFS_DELETEDIR_02);
             break;
         case 4  :
-            printf("deletedir_FAILURE: %s\n",ERR_VFS_DELETEDIR_04);
+            printf("deletedir_FAILURE %s\n",ERR_VFS_DELETEDIR_04);
             break;
         default :
             error_flag=0; /* not in error */
@@ -147,28 +147,28 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("movedir_FAILURE: %s\n",ERR_VFS_MOVEDIR_00);
+            printf("movedir_FAILURE %s\n",ERR_VFS_MOVEDIR_00);
             break;
         case 1  :
-            printf("movedir_FAILURE: %s\n",ERR_VFS_MOVEDIR_01);
+            printf("movedir_FAILURE %s\n",ERR_VFS_MOVEDIR_01);
             break;
         case 2  :
-            printf("movedir_FAILURE: %s\n",ERR_VFS_MOVEDIR_02);
+            printf("movedir_FAILURE %s\n",ERR_VFS_MOVEDIR_02);
             break;
         case 4  :
-            printf("movedir_FAILURE: %s\n",ERR_VFS_MOVEDIR_04);
+            printf("movedir_FAILURE %s\n",ERR_VFS_MOVEDIR_04);
             break;
         case 5  :
-            printf("movedir_FAILURE: %s\n",ERR_VFS_MOVEDIR_05);
+            printf("movedir_FAILURE %s\n",ERR_VFS_MOVEDIR_05);
             break;
         case 6  :
-            printf("movedir_FAILURE: %s\n",ERR_VFS_MOVEDIR_06);
+            printf("movedir_FAILURE %s\n",ERR_VFS_MOVEDIR_06);
             break;
         case 7  :
-            printf("movedir_FAILURE: %s\n",ERR_VFS_MOVEDIR_07);
+            printf("movedir_FAILURE %s\n",ERR_VFS_MOVEDIR_07);
             break;
         case 8  :
-            printf("movedir_FAILURE: %s\n",ERR_VFS_MOVEDIR_08);
+            printf("movedir_FAILURE %s\n",ERR_VFS_MOVEDIR_08);
             break;
         default :
             error_flag=0; /* not in error */
@@ -180,19 +180,19 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("listdir_FAILURE: %s\n",ERR_VFS_LISTDIR_00);
+            printf("listdir_FAILURE %s\n",ERR_VFS_LISTDIR_00);
             break;
         case 1  :
-            printf("listdir_FAILURE: %s\n",ERR_VFS_LISTDIR_01);
+            printf("listdir_FAILURE %s\n",ERR_VFS_LISTDIR_01);
             break;
         case 2  :
-            printf("listdir_FAILURE: %s\n",ERR_VFS_LISTDIR_02);
+            printf("listdir_FAILURE %s\n",ERR_VFS_LISTDIR_02);
             break;
         case 3  :
-            printf("listdir_FAILURE: %s\n",ERR_VFS_LISTDIR_03);
+            printf("listdir_FAILURE %s\n",ERR_VFS_LISTDIR_03);
             break;
         case 4  :
-            printf("listdir_FAILURE: %s\n",ERR_VFS_LISTDIR_04);
+            printf("listdir_FAILURE %s\n",ERR_VFS_LISTDIR_04);
             break;
         default :
             error_flag=0; /* not in error */
@@ -205,25 +205,25 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("addfile_FAILURE: %s\n",ERR_VFS_ADDFILE_00);
+            printf("addfile_FAILURE %s\n",ERR_VFS_ADDFILE_00);
             break;
         case 2  :
-            printf("addfile_FAILURE: %s\n",ERR_VFS_ADDFILE_02);
+            printf("addfile_FAILURE %s\n",ERR_VFS_ADDFILE_02);
             break;
         case 3  :
-            printf("addfile_FAILURE: %s\n",ERR_VFS_ADDFILE_03);
+            printf("addfile_FAILURE %s\n",ERR_VFS_ADDFILE_03);
             break;
         case 4  :
-            printf("addfile_FAILURE: %s\n",ERR_VFS_ADDFILE_04);
+            printf("addfile_FAILURE %s\n",ERR_VFS_ADDFILE_04);
             break;
         case 5  :
-            printf("addfile_FAILURE: %s\n",ERR_VFS_ADDFILE_05);
+            printf("addfile_FAILURE %s\n",ERR_VFS_ADDFILE_05);
             break;
         case 6  :
-            printf("addfile_FAILURE: %s\n",ERR_VFS_ADDFILE_06);
+            printf("addfile_FAILURE %s\n",ERR_VFS_ADDFILE_06);
             break;
         case 7  :
-            printf("addfile_FAILURE: %s\n",ERR_VFS_ADDFILE_07);
+            printf("addfile_FAILURE %s\n",ERR_VFS_ADDFILE_07);
             break;
         default :
             error_flag=0; /* not in error */
@@ -236,13 +236,13 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("removefile_FAILURE: %s\n",ERR_VFS_REMOVEFILE_00);
+            printf("removefile_FAILURE %s\n",ERR_VFS_REMOVEFILE_00);
             break;
         case 1  :
-            printf("removefile_FAILURE: %s\n",ERR_VFS_REMOVEFILE_01);
+            printf("removefile_FAILURE %s\n",ERR_VFS_REMOVEFILE_01);
             break;
         case 2  :
-            printf("removefile_FAILURE: %s\n",ERR_VFS_REMOVEFILE_02);
+            printf("removefile_FAILURE %s\n",ERR_VFS_REMOVEFILE_02);
             break;
         default :
             error_flag=0; /* not in error */
@@ -255,16 +255,16 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("movefile_FAILURE: %s\n",ERR_VFS_MOVEFILE_00);
+            printf("movefile_FAILURE %s\n",ERR_VFS_MOVEFILE_00);
             break;
         case 1  :
-            printf("movefile_FAILURE: %s\n",ERR_VFS_MOVEFILE_01);
+            printf("movefile_FAILURE %s\n",ERR_VFS_MOVEFILE_01);
             break;
         case 2  :
-            printf("movefile_FAILURE: %s\n",ERR_VFS_MOVEFILE_02);
+            printf("movefile_FAILURE %s\n",ERR_VFS_MOVEFILE_02);
             break;
         case 6  :
-            printf("movefile_FAILURE: %s\n",ERR_VFS_MOVEFILE_06);
+            printf("movefile_FAILURE %s\n",ERR_VFS_MOVEFILE_06);
             break;
         default :
             error_flag=0; /* not in error */
@@ -277,22 +277,22 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("copyfile_FAILURE: %s\n",ERR_VFS_COPYFILE_00);
+            printf("copyfile_FAILURE %s\n",ERR_VFS_COPYFILE_00);
             break;
         case 1  :
-            printf("copyfile_FAILURE: %s\n",ERR_VFS_COPYFILE_01);
+            printf("copyfile_FAILURE %s\n",ERR_VFS_COPYFILE_01);
             break;
         case 2  :
-            printf("copyfile_FAILURE: %s\n",ERR_VFS_COPYFILE_02);
+            printf("copyfile_FAILURE %s\n",ERR_VFS_COPYFILE_02);
             break;
         case 3  :
-            printf("copyfile_FAILURE: %s\n",ERR_VFS_COPYFILE_03);
+            printf("copyfile_FAILURE %s\n",ERR_VFS_COPYFILE_03);
             break;
         case 4  :
-            printf("copyfile_FAILURE: %s\n",ERR_VFS_COPYFILE_04);
+            printf("copyfile_FAILURE %s\n",ERR_VFS_COPYFILE_04);
             break;
         case 5  :
-            printf("copyfile_FAILURE: %s\n",ERR_VFS_COPYFILE_05);
+            printf("copyfile_FAILURE %s\n",ERR_VFS_COPYFILE_05);
             break;
         default :
             error_flag=0; /* not in error */
@@ -306,19 +306,19 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_00);
+            printf("updatefile_FAILURE %s\n",ERR_VFS_UPDATEFILE_00);
             break;
         case 1  :
-            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_01);
+            printf("updatefile_FAILURE %s\n",ERR_VFS_UPDATEFILE_01);
             break;
         case 2  :
-            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_02);
+            printf("updatefile_FAILURE %s\n",ERR_VFS_UPDATEFILE_02);
             break;
         case 3  :
-            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_03);
+            printf("updatefile_FAILURE %s\n",ERR_VFS_UPDATEFILE_03);
             break;
         case 4  :
-            printf("updatefile_FAILURE: %s\n",ERR_VFS_UPDATEFILE_04);
+            printf("updatefile_FAILURE %s\n",ERR_VFS_UPDATEFILE_04);
             break;
         default :
             error_flag=0; /* not in error */
@@ -333,19 +333,19 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_00);
+            printf("listfile_FAILURE %s\n",ERR_VFS_LISTFILE_00);
             break;
         case 1  :
-            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_01);
+            printf("listfile_FAILURE %s\n",ERR_VFS_LISTFILE_01);
             break;
         case 2  :
-            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_02);
+            printf("listfile_FAILURE %s\n",ERR_VFS_LISTFILE_02);
             break;
         case 3  :
-            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_03);
+            printf("listfile_FAILURE %s\n",ERR_VFS_LISTFILE_03);
             break;
         case 4  :
-            printf("listfile_FAILURE: %s\n",ERR_VFS_LISTFILE_04);
+            printf("listfile_FAILURE %s\n",ERR_VFS_LISTFILE_04);
             break;
         default :
             error_flag=0; /* not in error */
@@ -359,19 +359,19 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_00);
+            printf("exportfile_FAILURE %s\n",ERR_VFS_EXPORTFILE_00);
             break;
         case 1  :
-            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_01);
+            printf("exportfile_FAILURE %s\n",ERR_VFS_EXPORTFILE_01);
             break;
         case 2  :
-            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_02);
+            printf("exportfile_FAILURE %s\n",ERR_VFS_EXPORTFILE_02);
             break;
         case 3  :
-            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_03);
+            printf("exportfile_FAILURE %s\n",ERR_VFS_EXPORTFILE_03);
             break;
         case 4  :
-            printf("exportfile_FAILURE: %s\n",ERR_VFS_EXPORTFILE_04);
+            printf("exportfile_FAILURE %s\n",ERR_VFS_EXPORTFILE_04);
             break;
         default :
             error_flag=0; /* not in error */
@@ -385,14 +385,14 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("searchfile_FAILURE: %s\n",ERR_VFS_SEARCHFILE_00);
+            printf("searchfile_FAILURE %s\n",ERR_VFS_SEARCHFILE_00);
             break;
         case 2  :
-            printf("searchfile_FAILURE: %s\n",ERR_VFS_SEARCHFILE_02);
+            printf("searchfile_FAILURE %s\n",ERR_VFS_SEARCHFILE_02);
             break;
         default :
             error_flag=0; /* not in error */
-            printf("searchfile_SUCCESS : %d matches found\n",file_match_count);
+            printf("searchfile_SUCCESS %d\n",file_match_count);
             file_match_count=0;/* setting back to 0; */
             break;
         }
@@ -402,14 +402,14 @@ void console_output(int module, int index,char *output)
         switch(index)
         {
         case 0  :
-            printf("BSEARCH_FAILURE: %s\n",ERR_VFS_BSEARCH_00);
+            printf("BSEARCH_FAILURE %s\n",ERR_VFS_BSEARCH_00);
             break;
         case 1  :
-            printf("BSEARCH_FAILURE: %s\n",ERR_VFS_BSEARCH_02);
+            printf("BSEARCH_FAILURE %s\n",ERR_VFS_BSEARCH_02);
             break;
         default :
             error_flag=0; /* not in error */
-            printf("BSEARCH_SUCCESS:");
+            printf("BSEARCH_SUCCESS");
             if(Bsearch_flag == 11)
             	printf("FILE_FOUND\n");
             else if(Bsearch_flag == 7)
