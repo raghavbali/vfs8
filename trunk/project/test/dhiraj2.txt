@@ -1,8 +1,0 @@
-deletedir /home
-createvfs demo 1654367
-deletedir /home
-mountvfs demo
-createvfs demo 8192
-unmountvfs demo
-mountvfs demo
-addfile / abc.txt ../test/MirrorFile.txt
